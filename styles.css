@@ -1,0 +1,39 @@
+body {
+  background-color: purple;
+  color: white;
+  text-align: center;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif, sans-serif;
+}
+
+h1 {
+  margin-bottom: 30px;
+  font-family: Arial, sans-serif;
+}
+
+h2 {
+  margin-top: 30px;
+  font-family: Georgia, Times, 'Times New Roman', 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+} 
+
+.video-section {
+  margin-bottom: 30px;
+}
+
+video {
+  display: block;
+  margin: 0 auto;
+}
+
+.controls {
+  margin-top: 15px;
+}
+
+button {
+  margin: 5px;
+  padding: 10px;
+  font-size: 20px;
+}
+
+.buttons {
+  margin-top: 10px;
+}

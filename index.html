@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Let's Learn Chords</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <h1>Let's Learn Chords</h1>
+
+  <!-- VIDEO 1 -->
+  
+    <h2>Let's Learn: E7</h2>
+
+    <div class="player">
+      <video controls>
+        <source
+          src="/E7.mov"
+          type="video/mp4" />
+        <source
+          src="E7.mov"
+          type="video/webm" />
+      </video>
+
+      <div class="buttons">
+        <button onclick="playNote(329.63, 0.25)">E</button>
+        <button onclick="playNote(415.30, 0.25)">G&sharp;</button>
+        <button onclick="playNote(493.880, 0.25)">B</button>
+        <button onclick="playNote(587.33, 0.25)">D</button>
+
+      </div>
+
+      <button onclick="playChord([329.63, 415.30, 493.880, 587.33], 0.25)">
+        Play E7 Chord
+      </button>
+
+      <button onclick="playArpeggio([329.63, 415.30, 493.880, 587.33, 329.63 * 2, 415.30 * 2, 493.880 * 2, 587.33 * 2], 0.25)">
+        Arpeggio
+      </button>
+   
+
+<h3>Delay controls</h3>
+
+<button id="delayBtn">Toggle Delay</button>
+
+<label>Delay Time</label>
+<input type="range" id="delayTime" min="0" max="1" step="0.01" value="0.5">
+
+
+<label>Feedback</label>
+<input type="range" id="delayFeedback" min="0" max="0.9" step="0.01" value="0.5">
+</div>
+
+<button id="filterFreq">Toggle Filter</button>
+
+<label for="freq">Filter freq. <span id="freq-value">1</span>hz</label>
+<input type="range" id="freq" name="freq" max="20000" value="1000" step="100" />
+
+</div>
+
+  <!-- VIDEO 2 -->
+
+    <h2>Let's Learn: B7</h2>
+
+    <div class="player">
+      <video controls>
+        <source
+          src="/B7.mov"
+          type="video/mp4" />
+        <source
+          src="B7.mov"
+          type="video/webm" />
+      </video>
+
+<div class="buttons">
+      <button onclick="playNote(493.88, 0.25)">B</button>
+      <button onclick="playNote(622.25, 0.25)">D&sharp;</button>
+      <button onclick="playNote(739.99, 0.25)">F&sharp;</button>
+      <button onclick="playNote(880, 0.25)">A</button>
+      </div>
+
+      <button onclick="playChord([493.88, 622.25, 739.99, 880], 0.25)">
+        Play B7 Chord
+      </button>
+
+      <button onclick="playArpeggio([493.88, 622.25, 739.99, 880, 493.88 * 2, 622.25 * 2, 739.99 * 2, 880 * 2])">
+        Arpeggio
+      </button>
+   
+      <h3>Delay controls</h3>
+
+<button id="delayBtn">Toggle Delay</button>
+
+<label>Delay Time</label>
+<input type="range" id="delayTime" min="0" max="1" step="0.01" value="0.5">
+
+
+<label>Feedback</label>
+<input type="range" id="delayFeedback" min="0" max="0.9" step="0.01" value="0.5">
+</div>
+
+
+<button id="filterFreq">Toggle Filter</button>
+
+<label for="freq">Filter freq. <span id="freq-value">1</span>hz</label>
+<input type="range" id="freq" name="freq" max="20000" value="1000" step="100" />
+</div>
+
+  <script src="script.js"></script>
+  <script src="Notes.js"></script>
+</body>
+</html>
