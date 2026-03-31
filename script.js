@@ -31,6 +31,8 @@ function playNote(freq, maxgain = 1) {
   gain.gain.value = 0;
 
   osc.type = "sine";
+  osc.type2 = "square";
+  osc.type3 = "sawtooth";
   osc.frequency.value = freq;
 
   gain.gain.setValueAtTime(0, audioCtx.currentTime);
@@ -77,8 +79,10 @@ delayNode.connect(feedbackNode); // Feedback loop
 feedbackNode.connect(delayNode);
 
 delayNode.connect(masterGain);
+feedbackNode.connect(masterGain);
 
 // Controls for delay effect
+
 let delayOn = false; // Initial state of delay effect;
 
 const delayBtn = document.getElementById("delayBtn");
