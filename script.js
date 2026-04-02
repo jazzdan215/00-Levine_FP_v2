@@ -1,150 +1,131 @@
-// VIDEO CONTROLS
-function playVideo(id) {
-  document.getElementById(id).play();
-}
-
-function pauseVideo(id) {
-  document.getElementById(id).pause();
-}
-
-function setVolume(id, value) {
-  document.getElementById(id).volume = value;
-}
-
+// 1. AUDIO SETUP (The Pedalboard)
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const masterGain = audioCtx.createGain();
-masterGain.gain.value = 1;
 masterGain.connect(audioCtx.destination);
 
-document.body.addEventListener(
-  "click",
-  () => {
-    audioCtx.resume();
-  },
-  { once: true },
-);
+// THE RADIO FILTER (Bandpass)
+const radioFilter = audioCtx.createBiquadFilter();
+radioFilter.type = "allpass"; // DEFAULT: OFF (Allpass does nothing)
+radioFilter.frequency.value = 1000;
+radioFilter.Q.value = 2;
 
-// PLAY SINGLE NOTE
-function playNote(freq, maxgain = 1) {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  gain.gain.value = 0;
-
-  osc.type = "sine";
-  osc.type2 = "square";
-  osc.type3 = "sawtooth";
-  osc.frequency.value = freq;
-
-  gain.gain.setValueAtTime(0, audioCtx.currentTime);
-  gain.gain.linearRampToValueAtTime(maxgain, audioCtx.currentTime + 0.4);
-  gain.gain.linearRampToValueAtTime(0.5 * maxgain, audioCtx.currentTime + 0.8);
-  gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 5);
-
-  osc.connect(gain);
-
-  // ALWAYS go through master
-  gain.connect(masterGain);
-
-  // optional delay
-  if (delayOn) {
-    gain.connect(delayNode);
-  }
-
-  osc.start();
-  osc.stop(audioCtx.currentTime + 5.01);
-}
-
-// PLAY CHORD (all notes at once)
-function playChord(freqs, maxgain = 1) {
-  freqs.forEach((freq) => playNote(freq, maxgain));
-}
-
-// PLAY ARPEGGIO (notes one after another)
-function playArpeggio(freqs, maxgain = 1) {
-  freqs.forEach((freq, i) => {
-    setTimeout(() => {
-      playNote(freq, maxgain);
-    }, i * 400);
-  });
-}
-
-// PLAY EFFECT
+// THE DELAY SYSTEM
 const delayNode = audioCtx.createDelay();
 const feedbackNode = audioCtx.createGain();
+const dryGain = audioCtx.createGain();
+const wetGain = audioCtx.createGain();
 
-delayNode.delayTime.value = 0.5; // 500ms delay
-feedbackNode.gain.value = 0.5; // Feedback level
+delayNode.delayTime.value = 0.5;
+feedbackNode.gain.value = 0.5;
 
-delayNode.connect(feedbackNode); // Feedback loop
+// DEFAULT: OFF (Dry at 1, Wet at 0)
+dryGain.gain.value = 1;
+wetGain.gain.value = 0;
+
+// THE WIRING
+radioFilter.connect(dryGain);
+radioFilter.connect(delayNode);
+delayNode.connect(feedbackNode);
 feedbackNode.connect(delayNode);
+delayNode.connect(wetGain);
+dryGain.connect(masterGain);
+wetGain.connect(masterGain);
 
-delayNode.connect(masterGain);
-feedbackNode.connect(masterGain);
+// 2. CONNECT VIDEOS
+window.addEventListener("load", () => {
+  document.querySelectorAll("video").forEach((video) => {
+    const source = audioCtx.createMediaElementSource(video);
+    source.connect(radioFilter);
+  });
+});
 
-// Controls for delay effect
+// 3. PLAY FUNCTIONS
+function playNote(freq, maxgain = 0.3) {
+  if (audioCtx.state === "suspended") audioCtx.resume();
 
-let delayOn = false; // Initial state of delay effect;
+  const osc = audioCtx.createOscillator();
+  const noteGain = audioCtx.createGain();
 
-const delayBtn = document.getElementById("delayBtn");
-const delayTimeSlider = document.getElementById("delayTime");
-const feedbackSlider = document.getElementById("feedback");
+  osc.type = "sawtooth";
+  osc.frequency.value = freq;
 
+  // Envelope to prevent clicking and add a natural fade
+  noteGain.gain.setValueAtTime(0, audioCtx.currentTime);
+  noteGain.gain.linearRampToValueAtTime(maxgain, audioCtx.currentTime + 0.05);
+  noteGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+
+  // --- THE CONNECTION ---
+  osc.connect(noteGain);
+
+  // This is the "Magic Cable": It plugs the note into the Radio Filter
+  // which then flows into the Delay and Master Gain automatically.
+  noteGain.connect(radioFilter);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + 1.3);
+}
+
+// --- CHORD & ARPEGGIO LOGIC ---
+
+function playChord(freqs) {
+  // We reduce the gain slightly for chords (0.1) so they don't distort
+  // when 4 notes play at once through the filter.
+  freqs.forEach((f) => playNote(f, 0.1));
+}
+
+function playArpeggio(freqs) {
+  freqs.forEach((f, i) => {
+    // Each note in the array plays 300ms after the previous one
+    setTimeout(() => playNote(f, 0.2), i * 300);
+  });
+}
+
+// 4. UI CONTROLS (The Brain)
 document.addEventListener("DOMContentLoaded", () => {
-  const volumeSlider = document.getElementById("setVolume");
-  if (volumeSlider) {
-    volumeSlider.addEventListener("input", (event) => {
-      masterGain.gain.value = event.target.value / 100;
-    });
-  }
+  let isFilterOn = false;
+  let isDelayOn = false;
 
-  const delayBtn = document.getElementById("delayBtn");
-  if (delayBtn) {
-    delayBtn.addEventListener("click", () => {
-      delayOn = !delayOn;
-      delayBtn.textContent = delayOn ? "Delay: ON" : "Delay: OFF";
-    });
-  }
-
-  const delayTimeSlider = document.getElementById("delayTime");
-  if (delayTimeSlider) {
-    delayTimeSlider.addEventListener("input", () => {
-      delayNode.delayTime.value = delayTimeSlider.value;
-    });
-  }
-
-  const feedbackSlider = document.getElementById("feedback");
-  if (feedbackSlider) {
-    feedbackSlider.addEventListener("input", () => {
-      feedbackNode.gain.value = feedbackSlider.value;
-    });
-  }
-
-  // FILTER CONTROLS //
-
-  const freqSlider = document.getElementById("freq");
-  const freqValue = document.getElementById("freq-value");
-
-  const context = new AudioContext();
-  const audioSource = context.createMediaElementSource(
-    document.getElementById("E7.mov"),
-    document.getElementById("B7.mov"),
-  );
-  const filter = context.createBiquadFilter();
-  audioSource.connect(filter);
-  filter.connect(context.destination);
-
-  // Configure filter
-  filter.type = "lowshelf";
-  filter.frequency.value = 1000;
-  filter.gain.value = 20;
-
-  freqSlider.addEventListener("input", () => {
-    filter.frequency.value = freqSlider.value;
-    freqValue.textContent = parseFloat(freqSlider.value);
+  // FILTER TOGGLE
+  const filterBtn = document.getElementById("filterBtn");
+  filterBtn.addEventListener("click", () => {
+    isFilterOn = !isFilterOn;
+    if (isFilterOn) {
+      filterBtn.textContent = "Filter: ON";
+      radioFilter.type = "bandpass";
+    } else {
+      filterBtn.textContent = "Filter: OFF";
+      radioFilter.type = "allpass";
+    }
   });
 
-  // optional Filter
-  if (filterFreqOn) {
-    gain.connect(filter);
-  }
+  // DELAY TOGGLE
+  const delayBtn = document.getElementById("delayBtn");
+  delayBtn.addEventListener("click", () => {
+    isDelayOn = !isDelayOn;
+    if (isDelayOn) {
+      delayBtn.textContent = "Delay: ON";
+      const mixVal = parseFloat(document.getElementById("delayMix").value);
+      wetGain.gain.value = mixVal;
+      dryGain.gain.value = 1 - mixVal;
+    } else {
+      delayBtn.textContent = "Delay: OFF";
+      wetGain.gain.value = 0;
+      dryGain.gain.value = 1;
+    }
+  });
+
+  // SLIDERS
+  document.getElementById("freq").addEventListener("input", (e) => {
+    const val = e.target.value;
+    document.getElementById("freq-value").textContent = val;
+    if (isFilterOn) radioFilter.frequency.value = val;
+  });
+
+  document.getElementById("delayMix").addEventListener("input", (e) => {
+    const val = parseFloat(e.target.value);
+    if (isDelayOn) {
+      wetGain.gain.value = val;
+      dryGain.gain.value = 1 - val;
+    }
+  });
 });

@@ -40,3 +40,8 @@ button {
 .buttons {
   margin-top: 10px;
 }
+
+button:contains("ON") {
+  background-color: #4CAF50;
+  color: white;
+}
