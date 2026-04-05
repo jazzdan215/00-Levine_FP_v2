@@ -1,109 +1,160 @@
+/* --- FONTS --- */
+@font-face {
+    font-family: 'Liquid Galaxy';
+    src: url('Liquidgalaxy-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Liquify';
+    src: url('Liquify-DEMO.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');
 
+/* --- GLOBAL STYLES --- */
 body {
-  background: radial-gradient(circle, rgb(220, 100, 220) 0%, rgb(100, 20, 100) 100%);
-  background-attachment: fixed;
-  color: #dbca10; 
-  text-align: center;
-  font-family: 'Trebuchet MS', sans-serif;
-  margin: 0;
-  padding: 20px;
-  padding-right: 220px; /* Room for the sidebar */
+    background: radial-gradient(circle, rgb(97, 18, 208) 0%, rgb(100, 20, 100) 100%);
+    background-attachment: fixed;
+    color: #dbca10; 
+    text-align: center;
+    font-family: 'Liquid Galaxy', sans-serif;
+    margin: 0;
+    padding: 20px;
+    padding-right: 280px; /* Increased room for the wider sidebar */
 }
 
 h1 {
-  font-family: 'Abril Fatface', serif;
-  font-size: 60px;
-  color: #f1c40f;
-  text-shadow: 4px 4px 0px #8b0000;
+    font-family: 'Liquify', sans-serif;
+    font-size: 80px;
+    color: #f1c40f;
+    text-shadow: 4px 4px 0px #8b0000;
 }
 
-.player { margin-bottom: 50px; }
-
-video {
-  border: 6px solid #1a1a1a;
-  border-radius: 15px;
-  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+h2 {
+    font-family: 'Liquify', serif;
+    font-size: 3.5rem;
+    color: #dbca10;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
 }
 
-/* BUTTON STYLES */
-button {
-  cursor: pointer;
-  padding: 10px 20px;
-  margin: 5px;
-  background-color: #8b0000;
-  color: #f1c40f;
-  font-family: 'Grenze Gotisch', serif;
-  font-size: 1.1rem;
-  border: 2px solid #000;
-  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; 
-  box-shadow: 3px 3px 0px #000;
-  transition: all 0.2s ease;
-}
-
-button:hover {
-  transform: scale(1.05);
-  filter: drop-shadow(2px 0px 0px #ff0000) drop-shadow(-2px 0px 0px #0000ff);
-}
-
-button.active {
-  background-color: #000;
-  color: #ff0000;
-  border-color: #ff0000;
-  box-shadow: 0 0 15px #ff0000;
-  text-shadow: 0 0 5px #ff0000;
-}
-
-/* FLOATING RACK */
+/* --- THE FLOATING RACK (PEDALBOARD) --- */
 #pedalboard {
-  position: fixed;
-  right: 20px;
-  top: 40px; /* Pin it higher up */
-  z-index: 1000;
-  transform: scale(0.85);
-  transform-origin: top right;
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    z-index: 1000;
+    transform: scale(0.9);
+    transform-origin: top right;
 }
 
 .pedal-case {
-  background-color: #1a1a1a;
-  border: 4px solid #444;
-  border-radius: 15px;
-  padding: 15px;
-  box-shadow: -5px 5px 30px rgba(0,0,0,0.9);
-  width: 180px;
-  height: auto; /* Prevents it from going off-screen */
-  overflow-y: auto; /* Adds scroll if it gets too tall for small screens */
+    background-color: #1a1a1a;
+    border: 4px solid #444;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: -10px 10px 40px rgba(0,0,0,0.9);
+    width: 220px; /* Widened for better slider control */
+    max-height: 90vh; 
+    overflow-y: auto; /* Scrolling for the many new pedals */
+    scrollbar-width: thin;
+    scrollbar-color: #8b0000 #1a1a1a;
+}
+
+/* --- THE OSCILLOSCOPE --- */
+#oscillator-view {
+    width: 100%;
+    height: 80px;
+    background: #000;
+    border: 2px solid #8b0000;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* --- RACK ELEMENTS --- */
+.pedal-case h3 {
+    font-family: 'Liquify', sans-serif;
+    color: #f1c40f;
+    font-size: 1.4rem;
+    margin: 15px 0 5px 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .rack-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 10px 0;
-  border-bottom: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 0;
+    border-bottom: 1px solid #333;
 }
 
 .rack-group label {
-  font-family: 'Grenze Gotisch', serif;
-  font-size: 0.75rem;
-  color: #dbca10;
-  text-align: left;
+    font-family: 'Liquid Galaxy', sans-serif;
+    font-size: 0.9rem; /* Smaller for technical labels */
+    color: #edf3f3; 
+    text-align: left;
+    letter-spacing: 1px;
 }
 
-hr { border: 0; border-top: 1px solid #8b0000; margin: 10px 0; }
-
-.pedal-column {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* --- BUTTONS & SLIDERS --- */
+.pedal-case button {
+    cursor: pointer;
+    padding: 8px;
+    background-color: #8b0000;
+    color: #f1c40f;
+    font-family: 'Liquify', sans-serif;
+    font-size: 1rem;
+    border: 2px solid #000;
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
 
-.pedal-case h3 {
-  font-family: 'Abril Fatface', serif;
-  color: #8b0000;
-  font-size: 1.2rem;
-  margin-bottom: 10px;
+.pedal-case button:hover {
+    background-color: #a00000;
+    transform: translateY(-2px);
 }
 
-input[type=range] { width: 100%; accent-color: #8b0000; }
+.pedal-case button.active {
+    background-color: #f1c40f;
+    color: #000;
+    border-color: #fff;
+    box-shadow: 0 0 10px #f1c40f;
+}
+
+input[type=range] {
+    width: 100%;
+    accent-color: #f1c40f;
+    cursor: crosshair;
+    margin: 5px 0;
+}
+
+/* --- MAIN PAGE BUTTONS (The Notes) --- */
+.buttons button {
+    cursor: pointer;
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #8b0000;
+    color: #f1c40f;
+    font-family: 'Liquid Galaxy', sans-serif;
+    font-size: 1.25rem;
+    border: 2px solid #000;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; 
+    box-shadow: 3px 3px 0px #000;
+    transition: all 0.2s ease;
+}
+
+.buttons button:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(2px 0px 0px #ff0000) drop-shadow(-2px 0px 0px #0000ff);
+}
+
+/* Scrollbar styling for Chrome/Safari */
+.pedal-case::-webkit-scrollbar { width: 6px; }
+.pedal-case::-webkit-scrollbar-track { background: #1a1a1a; }
+.pedal-case::-webkit-scrollbar-thumb { background: #8b0000; border-radius: 10px; }
