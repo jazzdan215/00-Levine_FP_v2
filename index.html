@@ -9,61 +9,82 @@
 
   <h1>Let's Learn Chords</h1>
 
-
-  
-  <section class="controls">
-    <h3>Master Effects</h3>
-   
-    <button id="delayBtn">Delay: OFF</button>
-    <label>Time: <input type="range" id="delayTime" min="0" max="1" step="0.01" value="0.5"></label>
-    <label>Feedback: <input type="range" id="delayFeedback" min="0" max="0.9" step="0.01" value="0.5"></label>
-    
-        
-    <label>Delay Dry/Wet: 
-  <input type="range" id="delayMix" min="0" max="1" step="0.01" value="0.5">
-</label>
-
-<div></div>
-
-<button id="filterBtn">Filter: OFF</button>
-    <label>Filter Freq: <input type="range" id="freq" min="100" max="5000" value="500"> <span id="freq-value">500</span>Hz</label>
-
-<label>Radio Tuning (Bandpass): 
-  <input type="range" id="freq" min="200" max="3000" value="1000"> 
-  <span id="freq-value">1000</span>Hz
-</label>
-
+<div id="main-content">
   <div class="player">
     <h2>Let's Learn: E7</h2>
-    <video controls width="400">
-      <source src="E7.mov" type="video/mp4">
-    </video>
-
+    <video controls width="400"><source src="E7.mov" type="video/mp4"></video>
     <div class="buttons">
-      <button onclick="playNote(329.63)">E</button>
-      <button onclick="playNote(415.30)">G&sharp;</button>
-      <button onclick="playNote(493.88)">B</button>
-      <button onclick="playNote(587.33)">D</button>
-      <button onclick="playChord([329.63, 415.30, 493.88, 587.33])">Play E7 Chord</button>
-      <button onclick="playArpeggio([329.63, 415.30, 493.88, 587.33, 329.63 * 2, 415.30 * 2, 493.88 * 2, 587.33 * 2])">Arpeggio</button>
+      <button class="note-btn" data-freq="329.63">E</button>
+      <button class="note-btn" data-freq="415.30">G&sharp;</button>
+      <button class="note-btn" data-freq="493.88">B</button>
+      <button class="note-btn" data-freq="587.33">D</button>
+      <button class="chord-btn" data-notes="[329.63, 415.30, 493.88, 587.33]">Play E7 Chord</button>
+      <button class="arp-btn" data-notes="[329.63, 415.30, 493.88, 587.33, 659.26, 830.60]">Arpeggio</button>
     </div>
   </div>
 
   <div class="player">
     <h2>Let's Learn: B7</h2>
-    <video controls width="400">
-      <source src="B7.mov" type="video/mp4">
-    </video>
-
+    <video controls width="400"><source src="B7.mov" type="video/mp4"></video>
     <div class="buttons">
-      <button onclick="playNote(493.88)">B</button>
-      <button onclick="playNote(622.25)">D&sharp;</button>
-      <button onclick="playNote(739.99)">F&sharp;</button>
-      <button onclick="playNote(880)">A</button>
-      <button onclick="playChord([493.88, 622.25, 739.99, 880])">Play B7 Chord</button>
-      <button onclick="playArpeggio([493.88, 622.25, 739.99, 880, 493.88 * 2, 622.25 * 2, 739.99 * 2, 880 * 2])">Arpeggio</button>
+      <button class="note-btn" data-freq="493.88">B</button>
+      <button class="note-btn" data-freq="622.25">D&sharp;</button>
+      <button class="note-btn" data-freq="739.99">F&sharp;</button>
+      <button class="note-btn" data-freq="880">A</button>
+      <button class="chord-btn" data-notes="[493.88, 622.25, 739.99, 880]">Play B7 Chord</button>
+      <button class="arp-btn" data-notes="[493.88, 622.25, 739.99, 880, 987.76, 1244.50]">Arpeggio</button>
     </div>
   </div>
+</div>
+
+<div id="pedalboard">
+  <div class="pedal-case">
+    <h3>FX Rack</h3>
+    <div class="pedal-column">
+      
+      <div class="rack-group">
+        <button id="videoFxBtn">Video FX: OFF</button>
+        <label>Master Vol</label>
+        <input type="range" id="masterVol" min="0" max="1" step="0.01" value="0.5">
+      </div>
+
+      <hr>
+
+      <div class="rack-group">
+        <button id="fuzzBtn">Fuzz: OFF</button>
+        <label>Intensity</label>
+        <input type="range" id="fuzzRange" min="0" max="1000" value="0">
+      </div>
+
+      <div class="rack-group">
+        <button id="filterBtn">AM Radioizer: OFF</button>
+        <label>Freq</label>
+        <input type="range" id="freq" min="100" max="5000" value="1000">
+      </div>
+
+      <div class="rack-group">
+        <button id="delayBtn">Delay: OFF</button>
+        <label>Time</label>
+        <input type="range" id="delayTime" min="0" max="2" step="0.01" value="0">
+        <label>Feedback</label>
+        <input type="range" id="delayFeedback" min="0" max="0.9" step="0.01" value="0">
+        <label>Mix</label>
+        <input type="range" id="delayMix" min="0" max="1" step="0.01" value="0">
+      </div>
+
+      <div class="rack-group">
+        <button id="reverbBtn">Reverb: OFF</button>
+        <label>Size</label>
+        <input type="range" id="revSize" min="0.1" max="5" step="0.1" value="1.5">
+        <label>Tone</label>
+        <input type="range" id="revTone" min="100" max="10000" step="10" value="3000">
+        <label>Mix</label>
+        <input type="range" id="revMix" min="0" max="1" step="0.01" value="0">
+      </div>
+      
+    </div>
+  </div>
+</div>
 
   <script src="script.js"></script>
 </body>
