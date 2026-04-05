@@ -5,6 +5,12 @@ masterGain.connect(audioCtx.destination);
 // --- 1. THE NODES ---
 const inputNode = audioCtx.createGain();
 
+// Wah (Front of Chain)
+const wahFilter = audioCtx.createBiquadFilter();
+wahFilter.type = "allpass";
+wahFilter.Q.value = 5;
+wahFilter.frequency.value = 400;
+
 // Saturation
 const satNode = audioCtx.createWaveShaper();
 const satWet = audioCtx.createGain();
@@ -25,7 +31,7 @@ const lfo = audioCtx.createOscillator();
 const lfoDepth = audioCtx.createGain();
 lfo.type = "sine";
 lfo.frequency.value = 5;
-lfoDepth.gain.value = 0; // Starts at 0
+lfoDepth.gain.value = 0;
 lfo.connect(lfoDepth);
 lfoDepth.connect(tremoloGain.gain);
 lfo.start();
@@ -38,40 +44,46 @@ delayWet.gain.value = 0;
 const delayDry = audioCtx.createGain();
 delayDry.gain.value = 1;
 
-// Radio Filter
+// Radio & Reverb
 const radioFilter = audioCtx.createBiquadFilter();
 radioFilter.type = "allpass";
-
-// Reverb (Convolver)
 const reverbNode = audioCtx.createConvolver();
 const reverbWet = audioCtx.createGain();
 reverbWet.gain.value = 0;
 const reverbDry = audioCtx.createGain();
 reverbDry.gain.value = 1;
 
-// --- 2. SERIAL BYPASS WIRING ---
+// --- 2. SERIAL WIRING (Sequential Flow with "Bridges") ---
 
-// Input -> Saturation Stage
-inputNode.connect(satNode);
+// Input -> Wah
+inputNode.connect(wahFilter);
+
+// Wah -> Saturation
+wahFilter.connect(satNode);
 satNode.connect(satWet);
-inputNode.connect(satDry);
+wahFilter.connect(satDry);
 
-// Saturation -> Fuzz Stage
+// --- BRIDGE 1: Saturation Out ---
+const satOut = audioCtx.createGain();
+satWet.connect(satOut);
+satDry.connect(satOut);
+
+// Saturation Out -> Fuzz
 const fuzzInput = audioCtx.createGain();
-satWet.connect(fuzzInput);
-satDry.connect(fuzzInput);
-
+satOut.connect(fuzzInput);
 fuzzInput.connect(fuzzNode);
 fuzzNode.connect(fuzzWet);
 fuzzInput.connect(fuzzDry);
 
-// Fuzz -> Tremolo Stage
-const tremInput = audioCtx.createGain();
-fuzzWet.connect(tremInput);
-fuzzDry.connect(tremInput);
-tremInput.connect(tremoloGain);
+// --- BRIDGE 2: Fuzz Out ---
+const fuzzOut = audioCtx.createGain();
+fuzzWet.connect(fuzzOut);
+fuzzDry.connect(fuzzOut);
 
-// Tremolo -> Delay Stage
+// Fuzz Out -> Tremolo
+fuzzOut.connect(tremoloGain);
+
+// Tremolo -> Delay
 const delayInput = audioCtx.createGain();
 tremoloGain.connect(delayInput);
 delayInput.connect(delayNode);
@@ -80,13 +92,15 @@ delayFeedback.connect(delayNode);
 delayNode.connect(delayWet);
 delayInput.connect(delayDry);
 
-// Delay -> Radio Stage
-const radioInput = audioCtx.createGain();
-delayWet.connect(radioInput);
-delayDry.connect(radioInput);
-radioInput.connect(radioFilter);
+// --- BRIDGE 3: Delay Out ---
+const delayOut = audioCtx.createGain();
+delayWet.connect(delayOut);
+delayDry.connect(delayOut);
 
-// Radio -> Reverb Stage
+// Delay Out -> Radio
+delayOut.connect(radioFilter);
+
+// Radio -> Reverb
 const reverbInput = audioCtx.createGain();
 radioFilter.connect(reverbInput);
 reverbInput.connect(reverbNode);
@@ -112,9 +126,9 @@ function createSpringImpulse() {
 createSpringImpulse();
 
 function makeDistortionCurve(amount) {
-  const k = typeof amount === "number" ? amount : 50,
-    n_samples = 44100,
-    curve = new Float32Array(n_samples);
+  const k = typeof amount === "number" ? amount : 50;
+  const n_samples = 44100;
+  const curve = new Float32Array(n_samples);
   for (let i = 0; i < n_samples; ++i) {
     const x = (i * 2) / n_samples - 1;
     curve[i] =
@@ -122,8 +136,6 @@ function makeDistortionCurve(amount) {
   }
   return curve;
 }
-fuzzNode.curve = makeDistortionCurve(0);
-satNode.curve = makeDistortionCurve(0);
 
 function playNote(freq, maxgain = 0.2) {
   if (audioCtx.state === "suspended") audioCtx.resume();
@@ -142,7 +154,28 @@ function playNote(freq, maxgain = 0.2) {
 
 // --- 4. UI CONTROLS ---
 document.addEventListener("DOMContentLoaded", () => {
-  // Note Button Listeners
+  let wahActive = false;
+
+  document.getElementById("wahBtn").addEventListener("click", (e) => {
+    wahActive = e.target.classList.toggle("active");
+    e.target.textContent = wahActive ? "Wah-Wah: ON" : "Wah-Wah: OFF";
+    wahFilter.type = wahActive ? "bandpass" : "allpass";
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (wahActive) {
+      const height = window.innerHeight;
+      const y = e.clientY;
+      const frequency = 400 + (y / height) * 2600;
+      wahFilter.frequency.setTargetAtTime(
+        frequency,
+        audioCtx.currentTime,
+        0.05,
+      );
+    }
+  });
+
+  // Note Listeners
   document
     .querySelectorAll(".note-btn")
     .forEach((btn) =>
@@ -167,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ),
     );
 
-  // Video Setup
+  // Video Routing
   const videoFxGain = audioCtx.createGain();
   videoFxGain.gain.value = 0;
   const videoDryGain = audioCtx.createGain();
@@ -180,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
   videoFxGain.connect(inputNode);
   videoDryGain.connect(masterGain);
 
-  // Toggle Buttons
+  // Toggles
   document.getElementById("videoFxBtn").addEventListener("click", (e) => {
     const active = e.target.classList.toggle("active");
     videoFxGain.gain.value = active ? 1 : 0;
@@ -210,27 +243,6 @@ document.addEventListener("DOMContentLoaded", () => {
     e.target.textContent = active ? "Tremolo: ON" : "Tremolo: OFF";
   });
 
-  // Sliders
-  document
-    .getElementById("satDrive")
-    .addEventListener(
-      "input",
-      (e) => (satNode.curve = makeDistortionCurve(e.target.value)),
-    );
-  document
-    .getElementById("fuzzRange")
-    .addEventListener(
-      "input",
-      (e) => (fuzzNode.curve = makeDistortionCurve(e.target.value)),
-    );
-  document
-    .getElementById("tremoloSpeed")
-    .addEventListener("input", (e) => (lfo.frequency.value = e.target.value));
-  document.getElementById("tremoloDepth").addEventListener("input", (e) => {
-    if (document.getElementById("tremoloBtn").classList.contains("active"))
-      lfoDepth.gain.value = e.target.value;
-  });
-
   document.getElementById("delayBtn").addEventListener("click", (e) => {
     const active = e.target.classList.toggle("active");
     const mix = parseFloat(document.getElementById("delayMix").value);
@@ -239,13 +251,40 @@ document.addEventListener("DOMContentLoaded", () => {
     e.target.textContent = active ? "Delay: ON" : "Delay: OFF";
   });
 
-  document.getElementById("delayMix").addEventListener("input", (e) => {
-    if (document.getElementById("delayBtn").classList.contains("active")) {
-      delayWet.gain.value = e.target.value;
-      delayDry.gain.value = 1 - e.target.value;
-    }
+  document.getElementById("filterBtn").addEventListener("click", (e) => {
+    const active = e.target.classList.toggle("active");
+    radioFilter.type = active ? "bandpass" : "allpass";
+    e.target.textContent = active ? "AM Radioizer: ON" : "AM Radioizer: OFF";
   });
 
+  document.getElementById("reverbBtn").addEventListener("click", (e) => {
+    const active = e.target.classList.toggle("active");
+    const mix = parseFloat(document.getElementById("revMix").value);
+    reverbWet.gain.value = active ? mix : 0;
+    reverbDry.gain.value = active ? 1 - mix : 1;
+    e.target.textContent = active ? "Reverb: ON" : "Reverb: OFF";
+  });
+
+  // Sliders
+  document
+    .getElementById("satDrive")
+    .addEventListener(
+      "input",
+      (e) => (satNode.curve = makeDistortionCurve(parseInt(e.target.value))),
+    );
+  document
+    .getElementById("fuzzRange")
+    .addEventListener(
+      "input",
+      (e) => (fuzzNode.curve = makeDistortionCurve(parseInt(e.target.value))),
+    );
+  document
+    .getElementById("tremoloSpeed")
+    .addEventListener("input", (e) => (lfo.frequency.value = e.target.value));
+  document.getElementById("tremoloDepth").addEventListener("input", (e) => {
+    if (document.getElementById("tremoloBtn").classList.contains("active"))
+      lfoDepth.gain.value = e.target.value;
+  });
   document
     .getElementById("delayTime")
     .addEventListener(
@@ -258,39 +297,17 @@ document.addEventListener("DOMContentLoaded", () => {
       "input",
       (e) => (delayFeedback.gain.value = e.target.value),
     );
-
-  document.getElementById("filterBtn").addEventListener("click", (e) => {
-    const active = e.target.classList.toggle("active");
-    radioFilter.type = active ? "bandpass" : "allpass";
-    e.target.textContent = active ? "AM Radioizer: ON" : "AM Radioizer: OFF";
-  });
   document
     .getElementById("freq")
     .addEventListener(
       "input",
       (e) => (radioFilter.frequency.value = e.target.value),
     );
-
-  document.getElementById("reverbBtn").addEventListener("click", (e) => {
-    const active = e.target.classList.toggle("active");
-    const mix = parseFloat(document.getElementById("revMix").value);
-    reverbWet.gain.value = active ? mix : 0;
-    reverbDry.gain.value = active ? 1 - mix : 1;
-    e.target.textContent = active ? "Reverb: ON" : "Reverb: OFF";
-  });
-
-  document.getElementById("revMix").addEventListener("input", (e) => {
-    if (document.getElementById("reverbBtn").classList.contains("active")) {
-      reverbWet.gain.value = e.target.value;
-      reverbDry.gain.value = 1 - e.target.value;
-    }
-  });
-
   document
     .getElementById("masterVol")
     .addEventListener("input", (e) => (masterGain.gain.value = e.target.value));
 
-  // Visualizer Logic
+  // Visualizer
   const analyzer = audioCtx.createAnalyser();
   masterGain.connect(analyzer);
   const canvas = document.getElementById("oscillator-view");
