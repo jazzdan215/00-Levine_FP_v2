@@ -265,6 +265,93 @@ document.addEventListener("DOMContentLoaded", () => {
     e.target.textContent = active ? "Reverb: ON" : "Reverb: OFF";
   });
 
+  // --- SPINAL TAP "11" TOGGLE ---
+  const elevenBtn = document.getElementById("elevenBtn");
+
+  // Variables declared here so they are "remembered" between clicks
+  let humOsc = null;
+  let humGain = null;
+
+  function startElevenHum() {
+    if (!humOsc) {
+      humOsc = audioCtx.createOscillator();
+      humGain = audioCtx.createGain();
+
+      humOsc.type = "sine";
+      // 55Hz is a low 'A'—more audible than 45Hz on most speakers
+      humOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
+      humGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+      // --- WIRING ---
+      humOsc.connect(humGain);
+
+      // Connect to analyzer FIRST so it shows up on the visualizer
+      humGain.connect(analyzer);
+
+      // Then connect to the master output
+      humGain.connect(masterGain);
+
+      humOsc.start();
+      // Smooth fade in
+      humGain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.2);
+
+      console.log("Nigel's Hum: ONLINE");
+    }
+  }
+
+  function stopElevenHum() {
+    if (humOsc && humGain) {
+      const now = audioCtx.currentTime;
+      const decay = 0.5;
+
+      humGain.gain.cancelScheduledValues(now);
+      humGain.gain.setValueAtTime(humGain.gain.value, now);
+      humGain.gain.linearRampToValueAtTime(0, now + decay);
+
+      // Power-down pitch drop effect
+      humOsc.frequency.linearRampToValueAtTime(20, now + decay);
+
+      humOsc.stop(now + decay);
+
+      // Proper cleanup to free up memory
+      const oldOsc = humOsc;
+      const oldGain = humGain;
+      setTimeout(
+        () => {
+          oldOsc.disconnect();
+          oldGain.disconnect();
+        },
+        decay * 1000 + 100,
+      );
+
+      humOsc = null;
+      humGain = null;
+      console.log("Nigel's Hum: OFFLINE");
+    }
+  }
+
+  elevenBtn.addEventListener("click", async (e) => {
+    if (audioCtx.state === "suspended") {
+      await audioCtx.resume();
+    }
+
+    const isActive = e.target.classList.toggle("active");
+    e.target.textContent = isActive ? "11!" : "11";
+    document.body.classList.toggle("maxed-out", isActive);
+
+    if (isActive) {
+      startElevenHum();
+      // Programmatically max the fuzz
+      const fuzzRange = document.getElementById("fuzzRange");
+      if (fuzzRange) {
+        fuzzRange.value = 1000;
+        fuzzRange.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+    } else {
+      stopElevenHum();
+    }
+  });
+
   // Sliders
   document
     .getElementById("satDrive")

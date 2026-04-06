@@ -13,21 +13,36 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'Squealer';
+    src: url('Squealer.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'SquealerEmbossed';
+    src: url('Squealer-Embossed.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');
 
 /* --- GLOBAL STYLES --- */
 body {
-    background: radial-gradient(circle, rgb(97, 18, 208) 0%, rgb(100, 20, 100) 100%);
-    background-attachment: fixed;
+
+    /* Use 'background' as the shorthand for the gradient */
+    background: radial-gradient(circle, rgb(97, 18, 208) 0%, rgb(100, 20, 100) 100%) fixed;
     color: #dbca10; 
     text-align: center;
     font-family: 'Liquid Galaxy', sans-serif;
     margin: 0;
     padding: 20px;
-    padding-right: 280px; /* Increased room for the wider sidebar */
+    padding-right: 280px; 
+    transition: all 0.5s ease;
 }
-
 h1 {
     font-family: 'Liquify', sans-serif;
     font-size: 80px;
@@ -158,3 +173,80 @@ input[type=range] {
 .pedal-case::-webkit-scrollbar { width: 6px; }
 .pedal-case::-webkit-scrollbar-track { background: #1a1a1a; }
 .pedal-case::-webkit-scrollbar-thumb { background: #8b0000; border-radius: 10px; }
+
+/* --- Spinal Tap '11' Button --- */
+.spinal-tap-btn {
+    font-family: 'SquealerEmbossed', serif !important; /* Only the 11 button gets this */
+    font-size: 4rem !important;
+    background-color: #ff0000; /* Max red */
+    color: #000;
+    border: 4px solid #fff; /* White border to stand out */
+    border-radius: 50% / 10%; /* Makes it a weird, squashed oval */
+    box-shadow: 0 0 20px #ff0000;
+    margin-bottom: 5px;
+    line-height: 1; /* Centers the '11' */
+    transition: all 0.1s ease; /* Faster transition for an aggressive button */
+}
+
+.spinal-tap-btn:hover {
+    transform: scale(1.1) rotate(2deg); /* Jumps and tilts slightly */
+    box-shadow: 0 0 30px #ff0000, 0 0 10px #fff;
+    filter: brightness(1.2);
+}
+
+.spinal-tap-btn.active {
+    background-color: #000 !important;
+    color: #ff0000 !important;
+    border-color: #ff0000 !important;
+    box-shadow: 0 0 40px #ff0000, inset 0 0 10px #ff0000;
+    transform: scale(1.05) rotate(-2deg); /* Slightly different active tilt */
+}
+
+/* --- The Spinal Tap Body Class --- */
+body.maxed-out {
+    /* Replace the radial-gradient with the image */
+    background: url('spinaltap.jpg') no-repeat center center fixed !important;
+    background-size: cover !important; /* Ensures the image fills the screen */
+}
+
+/* We also need to hide some main content to focus on the image and pedalboard */
+body.maxed-out h1,
+body.maxed-out #main-content {
+    opacity: 0.1; /* Almost invisible, but still there */
+    transition: opacity 1s ease;
+}
+
+/* Optional: Add a subtle red "overload" hum sound on mouse hover for maximum atmosphere */
+.spinal-tap-btn:hover::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(255, 0, 0, 0.05); /* Extremely subtle red flash */
+    pointer-events: none; /* Let the mouse click through */
+    z-index: -1;
+}
+
+/* Make this selector extremely specific */
+html body.maxed-out {
+    /* Force the image to replace the gradient */
+    background-image: url('spinaltap.gif') !important;
+    background-color: #000 !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    background-attachment: fixed !important;
+}
+
+body.maxed-out #pedalboard {
+    animation: shake 0.5s infinite;
+}
+
+@keyframes shake {
+    0% { transform: scale(0.9) translate(1px, 1px) rotate(0deg); }
+    10% { transform: scale(0.9) translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: scale(0.9) translate(-3px, 0px) rotate(1deg); }
+    30% { transform: scale(0.9) translate(3px, 2px) rotate(0deg); }
+    40% { transform: scale(0.9) translate(1px, -1px) rotate(1deg); }
+    50% { transform: scale(0.9) translate(-1px, 2px) rotate(-1deg); }
+}
