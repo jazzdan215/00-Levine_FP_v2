@@ -137,17 +137,27 @@ function makeDistortionCurve(amount) {
   return curve;
 }
 
+// THE FIXED PLAYNOTE
 function playNote(freq, maxgain = 0.2) {
   if (audioCtx.state === "suspended") audioCtx.resume();
+
+  // Get the live value from the dropdown
+  const toneDropdown = document.getElementById("toneSelect");
+  const selectedTone = toneDropdown ? toneDropdown.value : "sawtooth";
+
   const osc = audioCtx.createOscillator();
   const noteGain = audioCtx.createGain();
-  osc.type = "sawtooth";
+
+  osc.type = selectedTone; // Now it actually listens to the UI
   osc.frequency.value = freq;
+
   noteGain.gain.setValueAtTime(0, audioCtx.currentTime);
   noteGain.gain.linearRampToValueAtTime(maxgain, audioCtx.currentTime + 0.05);
   noteGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+
   osc.connect(noteGain);
   noteGain.connect(inputNode);
+
   osc.start();
   osc.stop(audioCtx.currentTime + 1.2);
 }

@@ -250,3 +250,29 @@ body.maxed-out #pedalboard {
     40% { transform: scale(0.9) translate(1px, -1px) rotate(1deg); }
     50% { transform: scale(0.9) translate(-1px, 2px) rotate(-1deg); }
 }
+.scale-heading {
+    font-size: 1.8rem; /* Bigger font as requested */
+    color: #f1c40f;
+    margin: 20px 0 10px 0;
+    text-shadow: 2px 2px 0px #000;
+}
+
+/* Dropdown styling to match the rack */
+.tone-dropdown {
+    background-color: #333;
+    color: #f1c40f;
+    border: 2px solid #8b0000;
+    padding: 5px;
+    font-family: 'Liquid Galaxy', sans-serif;
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Ensure these buttons wrap nicely since they are now big */
+.chromatic-wrapper .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 600px;
+    margin: 0 auto;
+}

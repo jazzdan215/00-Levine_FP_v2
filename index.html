@@ -37,6 +37,26 @@
         </div>
     </div>
 
+<div class="chromatic-wrapper">
+    <h3 class="scale-heading">Chromatic Scale</h3>
+    <div class="buttons">
+        <button class="note-btn" data-freq="261.63">C</button>
+        <button class="note-btn" data-freq="277.18">C#</button>
+        <button class="note-btn" data-freq="293.66">D</button>
+        <button class="note-btn" data-freq="311.13">D#</button>
+        <button class="note-btn" data-freq="329.63">E</button>
+        <button class="note-btn" data-freq="349.23">F</button>
+        <button class="note-btn" data-freq="369.99">F#</button>
+        <button class="note-btn" data-freq="392.00">G</button>
+        <button class="note-btn" data-freq="415.30">G#</button>
+        <button class="note-btn" data-freq="440.00">A</button>
+        <button class="note-btn" data-freq="466.16">A#</button>
+        <button class="note-btn" data-freq="493.88">B</button>
+    </div>
+</div>
+
+
+
     <div id="pedalboard">
         <div class="pedal-case">
             <h3>Signal View</h3>
@@ -101,10 +121,23 @@
                     <label>Mix</label>
                     <input type="range" id="revMix" min="0" max="1" step="0.01" value="0">
                 </div>
+<div class="rack-group">
+    <label>Oscillator Tone</label>
+    <select id="toneSelect" class="tone-dropdown">
+        <option value="sawtooth" selected>Sawtooth (Default)</option>
+        <option value="sine">Sine (Smooth)</option>
+        <option value="square">Square (Hollow/Retro)</option>
+        <option value="triangle">Triangle (Warm)</option>
+    </select>
+</div>
+
+
                 <div class="rack-group" style="border: none;"> <button id="elevenBtn" class="spinal-tap-btn">11</button>
                 <p style="font-size: 0.8rem; color: #8b0000; margin: 0; font-family: 'SquealerEmbossed', sans-serif;">These go to eleven.</p>
             </div>
-            </div>
+            
+        
+        </div>
         </div>
     </div>
 
