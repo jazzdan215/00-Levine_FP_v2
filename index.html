@@ -93,43 +93,44 @@
                 <div class="rack-group">
                     <button id="tremoloBtn">Tremolo: OFF</button>
                     <label>Speed</label>
-                    <input type="range" id="tremoloSpeed" min="0" max="20" step="0.1" value="5">
+                    <input type="range" id="tremoloSpeed" min="0" max="20" step="0.1" value="0.5">
                     <label>Depth</label>
-                    <input type="range" id="tremoloDepth" min="0" max="1" step="0.01" value="0">
+                    <input type="range" id="tremoloDepth" min="0" max="1" step="0.01" value="0.025">
                 </div>
 
                 <div class="rack-group">
                     <button id="delayBtn">Delay: OFF</button>
                     <label>Time</label>
-                    <input type="range" id="delayTime" min="0" max="2" step="0.01" value="0">
+                    <input type="range" id="delayTime" min="0" max="2" step="0.01" value="0.025">
                     <label>Feedback</label>
-                    <input type="range" id="delayFeedback" min="0" max="0.9" step="0.01" value="0">
+                    <input type="range" id="delayFeedback" min="0" max="0.9" step="0.01" value="0.025">
                     <label>Mix</label>
-                    <input type="range" id="delayMix" min="0" max="1" step="0.01" value="0">
+                    <input type="range" id="delayMix" min="0" max="1" step="0.01" value="0.05">
                 </div>
 
                 <div class="rack-group">
                     <button id="filterBtn">AM Radioizer: OFF</button>
                     <label>Freq</label>
-                    <input type="range" id="freq" min="100" max="5000" value="1000">
+                    <input type="range" id="freq" min="100" max="5000" value="500">
                 </div>
 
                 <div class="rack-group">
                     <button id="reverbBtn">Reverb: OFF</button>
                     <label>Size</label>
-                    <input type="range" id="revSize" min="0.1" max="5" step="0.1" value="1.5">
+                    <input type="range" id="revSize" min="0.1" max="5" step="0.1" value="0.025">
                     <label>Mix</label>
-                    <input type="range" id="revMix" min="0" max="1" step="0.01" value="0">
+                    <input type="range" id="revMix" min="0" max="1" step="0.01" value="0.025">
                 </div>
-<div class="rack-group">
-    <label>Oscillator Tone</label>
-    <select id="toneSelect" class="tone-dropdown">
-        <option value="sawtooth" selected>Sawtooth (Default)</option>
-        <option value="sine">Sine (Smooth)</option>
-        <option value="square">Square (Hollow/Retro)</option>
-        <option value="triangle">Triangle (Warm)</option>
-    </select>
-</div>
+                
+                <div class="rack-group">
+                    <label>Oscillator Tone</label>
+                    <select id="toneSelect" class="tone-dropdown">
+                        <option value="sine" selected>Sine (Smooth)</option>
+                        <option value="sawtooth" >Sawtooth</option>
+                        <option value="square">Square (Hollow/Retro)</option>
+                        <option value="triangle">Triangle (Warm)</option>
+                    </select>
+                </div>
 
 
                 <div class="rack-group" style="border: none;"> <button id="elevenBtn" class="spinal-tap-btn">11</button>

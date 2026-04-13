@@ -143,7 +143,7 @@ function playNote(freq, maxgain = 0.2) {
 
   // Get the live value from the dropdown
   const toneDropdown = document.getElementById("toneSelect");
-  const selectedTone = toneDropdown ? toneDropdown.value : "sawtooth";
+  const selectedTone = toneDropdown ? toneDropdown.value : "sine";
 
   const osc = audioCtx.createOscillator();
   const noteGain = audioCtx.createGain();
@@ -296,7 +296,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("delayBtn").addEventListener("click", (e) => {
     const active = e.target.classList.toggle("active");
+    // console.log("Delay Toggle: ", active);
     const mix = parseFloat(document.getElementById("delayMix").value);
+    console.log("Delay Mix Value: ", mix);
     delayWet.gain.value = active ? mix : 0;
     delayDry.gain.value = active ? 1 - mix : 1;
     e.target.textContent = active ? "Delay: ON" : "Delay: OFF";
