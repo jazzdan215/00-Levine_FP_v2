@@ -185,6 +185,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // 1. Define your mapping (Key: Frequency)
+  const keyboardMap = {
+    a: 261.63, // C
+    w: 277.18, // C#
+    s: 293.66, // D
+    e: 311.13, // D#
+    d: 329.63, // E
+    f: 349.23, // F
+    t: 369.99, // F#
+    g: 392.0, // G
+    y: 415.3, // G#
+    h: 440.0, // A
+    u: 466.16, // A#
+    j: 493.88, // B
+  };
+
+  // 2. Add the Event Listener
+  window.addEventListener("keydown", (e) => {
+    // Check if the key pressed is in our map
+    const freq = keyboardMap[e.key.toLowerCase()];
+
+    if (freq) {
+      // Prevent default behavior (like scrolling) if it's a mapped key
+      e.preventDefault();
+
+      // Use your existing playNote function!
+      playNote(freq);
+
+      // OPTIONAL: Visual feedback (makes the button look clicked)
+      const btn = document.querySelector(`.note-btn[data-freq="${freq}"]`);
+      if (btn) {
+        btn.style.transform = "scale(0.95)";
+        btn.style.filter = "brightness(1.5)";
+        setTimeout(() => {
+          btn.style.transform = "";
+          btn.style.filter = "";
+        }, 100);
+      }
+    }
+  });
+
   // Note Listeners
   document
     .querySelectorAll(".note-btn")
