@@ -22,6 +22,7 @@
                 <button class="arp-btn" data-notes="[329.63, 415.30, 493.88, 587.33, 659.26, 830.60]">Arpeggio</button>
             </div>
         </div>
+
         <div class="player">
             <h2>Let's Learn: B7</h2>
             <video controls width="400"><source src="B7.mov" type="video/mp4"></video>
@@ -34,21 +35,23 @@
                 <button class="arp-btn" data-notes="[493.88, 622.25, 739.99, 880, 987.76, 1244.50]">Arpeggio</button>
             </div>
         </div>
-       <div class="player">
-        <h2>Let's Learn: A</h2>
-        <video controls width="400"><source src="A.mov" type="video/mp4"></video>
-        <div class="buttons">
-            <button class="note-btn" data-freq="440.00">A</button>
-            <button class="note-btn" data-freq="554.36">C&sharp;</button>
-            <button class="note-btn" data-freq="659.26">E</button>
-            <button class="chord-btn" data-notes="[440.00, 554.36, 659.26]">Play A Chord</button>
-            <button class="arp-btn" data-notes="[440.00, 554.36, 659.26, 880.00, 1108.72, 1318.52]">Arpeggio</button>
+
+        <div class="player">
+            <h2>Let's Learn: A</h2>
+            <video controls width="400"><source src="A.mov" type="video/mp4"></video>
+            <div class="buttons">
+                <button class="note-btn" data-freq="440.00">A</button>
+                <button class="note-btn" data-freq="554.36">C&sharp;</button>
+                <button class="note-btn" data-freq="659.26">E</button>
+                <button class="chord-btn" data-notes="[440.00, 554.36, 659.26]">Play A Chord</button>
+                <button class="arp-btn" data-notes="[440.00, 554.36, 659.26, 880.00, 1108.72, 1318.52]">Arpeggio</button>
+            </div>
         </div>
-        </div>
+
         <div class="player">
             <h2>Let's Learn: D</h2>
             <video controls width="400"><source src="D.mov" type="video/mp4"></video>
-                <div class="buttons">
+            <div class="buttons">
                 <button class="note-btn" data-freq="293.66">D</button>
                 <button class="note-btn" data-freq="369.99">F#</button>
                 <button class="note-btn" data-freq="440.00">A</button>
@@ -56,28 +59,79 @@
                 <button class="arp-btn" data-notes="[293.66, 369.99, 440.00, 587.33, 739.99, 880.00]">Arpeggio</button>
             </div>
         </div>
-    
-    
+
+        <!-- G: spans full width, both videos side by side, one set of buttons -->
+        <div class="player player-g-wide">
+            <h2>Let's Learn: G</h2>
+            <div class="g-videos">
+                <div class="g-video-block">
+                    <p class="g-part-label">Part I</p>
+                    <video controls><source src="Gpart1.mov" type="video/mp4"></video>
+                </div>
+                <div class="g-video-block">
+                    <p class="g-part-label">Part II</p>
+                    <video controls><source src="Gpart2.mov" type="video/mp4"></video>
+                </div>
+            </div>
+            <div class="buttons">
+                <button class="note-btn" data-freq="392.00">G</button>
+                <button class="note-btn" data-freq="493.88">B</button>
+                <button class="note-btn" data-freq="587.33">D</button>
+                <button class="chord-btn" data-notes="[392.00, 493.88, 587.33]">Play G Chord</button>
+                <button class="arp-btn" data-notes="[392.00, 493.88, 587.33, 783.99, 987.76, 1174.66]">Arpeggio</button>
+            </div>
+        </div>
     </div>
-<div class="chromatic-wrapper">
-    <h3 class="scale-heading">Chromatic Scale</h3>
-    <div class="buttons">
-        <button class="note-btn" data-freq="261.63">C</button>
-        <button class="note-btn" data-freq="277.18">C#</button>
-        <button class="note-btn" data-freq="293.66">D</button>
-        <button class="note-btn" data-freq="311.13">D#</button>
-        <button class="note-btn" data-freq="329.63">E</button>
-        <button class="note-btn" data-freq="349.23">F</button>
-        <button class="note-btn" data-freq="369.99">F#</button>
-        <button class="note-btn" data-freq="392.00">G</button>
-        <button class="note-btn" data-freq="415.30">G#</button>
-        <button class="note-btn" data-freq="440.00">A</button>
-        <button class="note-btn" data-freq="466.16">A#</button>
-        <button class="note-btn" data-freq="493.88">B</button>
+<div id="main-content">
+
+    <div class="grid-card">
+        <h2 class="g-part-label">D SECTION</h2>
+        
+        <video id="video-d" src="d-video.mp4" loop muted></video>
+        
+        <div class="button-row">
+            <button class="note-btn">D</button>
+            <button class="note-btn">A</button>
+        </div>
     </div>
+
+    <div class="grid-card player-g-wide">
+        <h2 class="g-part-label">G SECTION (DUAL)</h2>
+        
+        <div class="g-videos">
+            <div class="g-video-block">
+                <video id="video-g1" src="g-left.mp4" loop muted></video>
+            </div>
+            <div class="g-video-block">
+                <video id="video-g2" src="g-right.mp4" loop muted></video>
+            </div>
+        </div>
+
+        <div class="button-row">
+            <button class="note-btn">G</button>
+            <button class="note-btn">B</button>
+            <button class="note-btn">D</button>
+        </div>
+    </div>
+
 </div>
-
-
+    <div class="chromatic-wrapper">
+        <h3 class="scale-heading">Chromatic Scale</h3>
+        <div class="buttons">
+            <button class="note-btn" data-freq="261.63">C</button>
+            <button class="note-btn" data-freq="277.18">C#</button>
+            <button class="note-btn" data-freq="293.66">D</button>
+            <button class="note-btn" data-freq="311.13">D#</button>
+            <button class="note-btn" data-freq="329.63">E</button>
+            <button class="note-btn" data-freq="349.23">F</button>
+            <button class="note-btn" data-freq="369.99">F#</button>
+            <button class="note-btn" data-freq="392.00">G</button>
+            <button class="note-btn" data-freq="415.30">G#</button>
+            <button class="note-btn" data-freq="440.00">A</button>
+            <button class="note-btn" data-freq="466.16">A#</button>
+            <button class="note-btn" data-freq="493.88">B</button>
+        </div>
+    </div>
 
     <div id="pedalboard">
         <div class="pedal-case">
@@ -86,18 +140,18 @@
 
             <h3>FX Rack</h3>
             <div class="pedal-column">
-                      <div class="rack-group">
+                <div class="rack-group">
                     <button id="videoFxBtn">Video FX: OFF</button>
                     <label>Master Vol</label>
                     <input type="range" id="masterVol" min="0" max="1" step="0.01" value="0.5">
                 </div>
-  
-            <div class="rack-group">
-            <button id="wahBtn">Wah-Wah: OFF</button>
-            <label>Mouse Control</label>
-            <p style="font-size: 0.7rem; color: #8b0000;">Move mouse UP/DOWN to sweep</p>
-             </div>
-                
+
+                <div class="rack-group">
+                    <button id="wahBtn">Wah-Wah: OFF</button>
+                    <label>Mouse Control</label>
+                    <p style="font-size: 0.7rem; color: #8b0000;">Move mouse UP/DOWN to sweep</p>
+                </div>
+
                 <hr>
 
                 <div class="rack-group">
@@ -143,24 +197,22 @@
                     <label>Mix</label>
                     <input type="range" id="revMix" min="0" max="1" step="0.01" value="0.025">
                 </div>
-                
+
                 <div class="rack-group">
                     <label>Oscillator Tone</label>
                     <select id="toneSelect" class="tone-dropdown">
                         <option value="sine" selected>Sine (Smooth)</option>
-                        <option value="sawtooth" >Sawtooth</option>
+                        <option value="sawtooth">Sawtooth</option>
                         <option value="square">Square (Hollow/Retro)</option>
                         <option value="triangle">Triangle (Warm)</option>
                     </select>
                 </div>
 
-
-                <div class="rack-group" style="border: none;"> <button id="elevenBtn" class="spinal-tap-btn">11</button>
-                <p style="font-size: 0.8rem; color: #8b0000; margin: 0; font-family: 'SquealerEmbossed', sans-serif;">These go to eleven.</p>
+                <div class="rack-group" style="border: none;">
+                    <button id="elevenBtn" class="spinal-tap-btn">11</button>
+                    <p style="font-size: 0.8rem; color: #8b0000; margin: 0; font-family: 'SquealerEmbossed', sans-serif;">These go to eleven.</p>
+                </div>
             </div>
-            
-        
-        </div>
         </div>
     </div>
 

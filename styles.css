@@ -32,17 +32,16 @@
 
 /* --- GLOBAL STYLES --- */
 body {
-
-    /* Use 'background' as the shorthand for the gradient */
     background: radial-gradient(circle, rgb(97, 18, 208) 0%, rgb(100, 20, 100) 100%) fixed;
-    color: #dbca10; 
+    color: #dbca10;
     text-align: center;
     font-family: 'Liquid Galaxy', sans-serif;
     margin: 0;
     padding: 20px;
-    padding-right: 280px; 
+    padding-right: 280px;
     transition: all 0.5s ease;
 }
+
 h1 {
     font-family: 'Liquify', sans-serif;
     font-size: 80px;
@@ -56,6 +55,71 @@ h2 {
     color: #dbca10;
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
 }
+
+/* --- UPDATED 3-COLUMN GRID LAYOUT --- */
+#main-content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+    gap: 24px;
+    align-items: start; /* Changed from end to start for cleaner alignment */
+    margin-bottom: 40px;
+}
+
+/* Ensure the G card only takes up the space it needs */
+.player-g-wide {
+    grid-column: span 2; /* Takes up 2/3 of the row */
+}
+
+/* This container holds the G videos side-by-side */
+.g-videos {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start; 
+    width: 100%;
+}
+
+.player {
+    /* Styles for the D card (and others) to match G's height */
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+/* --- G SECTION: spans all 3 columns, videos side by side --- */
+.player-g-wide {
+    grid-column: span 2;
+}
+
+.g-videos {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.g-video-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    max-width: 420px;
+}
+
+.g-video-block video {
+    width: 100%;
+    height: auto;
+}
+
+.g-part-label {
+    font-family: 'Liquid Galaxy', sans-serif;
+    font-size: 1.1rem;
+    color: #f1c40f;
+    margin: 0 0 6px 0;
+    letter-spacing: 1px;
+}
+
+
 
 /* --- THE FLOATING RACK (PEDALBOARD) --- */
 #pedalboard {
@@ -73,9 +137,9 @@ h2 {
     border-radius: 15px;
     padding: 15px;
     box-shadow: -10px 10px 40px rgba(0,0,0,0.9);
-    width: 220px; /* Widened for better slider control */
-    max-height: 90vh; 
-    overflow-y: auto; /* Scrolling for the many new pedals */
+    width: 220px;
+    max-height: 90vh;
+    overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #8b0000 #1a1a1a;
 }
@@ -111,8 +175,8 @@ h2 {
 
 .rack-group label {
     font-family: 'Liquid Galaxy', sans-serif;
-    font-size: 0.9rem; /* Smaller for technical labels */
-    color: #edf3f3; 
+    font-size: 0.9rem;
+    color: #edf3f3;
     text-align: left;
     letter-spacing: 1px;
 }
@@ -159,7 +223,7 @@ input[type=range] {
     font-family: 'Liquid Galaxy', sans-serif;
     font-size: 1.25rem;
     border: 2px solid #000;
-    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; 
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
     box-shadow: 3px 3px 0px #000;
     transition: all 0.2s ease;
 }
@@ -176,20 +240,20 @@ input[type=range] {
 
 /* --- Spinal Tap '11' Button --- */
 .spinal-tap-btn {
-    font-family: 'SquealerEmbossed', serif !important; /* Only the 11 button gets this */
+    font-family: 'SquealerEmbossed', serif !important;
     font-size: 4rem !important;
-    background-color: #ff0000; /* Max red */
+    background-color: #ff0000;
     color: #000;
-    border: 4px solid #fff; /* White border to stand out */
-    border-radius: 50% / 10%; /* Makes it a weird, squashed oval */
+    border: 4px solid #fff;
+    border-radius: 50% / 10%;
     box-shadow: 0 0 20px #ff0000;
     margin-bottom: 5px;
-    line-height: 1; /* Centers the '11' */
-    transition: all 0.1s ease; /* Faster transition for an aggressive button */
+    line-height: 1;
+    transition: all 0.1s ease;
 }
 
 .spinal-tap-btn:hover {
-    transform: scale(1.1) rotate(2deg); /* Jumps and tilts slightly */
+    transform: scale(1.1) rotate(2deg);
     box-shadow: 0 0 30px #ff0000, 0 0 10px #fff;
     filter: brightness(1.2);
 }
@@ -199,37 +263,32 @@ input[type=range] {
     color: #ff0000 !important;
     border-color: #ff0000 !important;
     box-shadow: 0 0 40px #ff0000, inset 0 0 10px #ff0000;
-    transform: scale(1.05) rotate(-2deg); /* Slightly different active tilt */
+    transform: scale(1.05) rotate(-2deg);
 }
 
 /* --- The Spinal Tap Body Class --- */
 body.maxed-out {
-    /* Replace the radial-gradient with the image */
     background: url('spinaltap.jpg') no-repeat center center fixed !important;
-    background-size: cover !important; /* Ensures the image fills the screen */
+    background-size: cover !important;
 }
 
-/* We also need to hide some main content to focus on the image and pedalboard */
 body.maxed-out h1,
 body.maxed-out #main-content {
-    opacity: 0.1; /* Almost invisible, but still there */
+    opacity: 0.1;
     transition: opacity 1s ease;
 }
 
-/* Optional: Add a subtle red "overload" hum sound on mouse hover for maximum atmosphere */
 .spinal-tap-btn:hover::after {
     content: '';
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background-color: rgba(255, 0, 0, 0.05); /* Extremely subtle red flash */
-    pointer-events: none; /* Let the mouse click through */
+    background-color: rgba(255, 0, 0, 0.05);
+    pointer-events: none;
     z-index: -1;
 }
 
-/* Make this selector extremely specific */
 html body.maxed-out {
-    /* Force the image to replace the gradient */
     background-image: url('spinaltap.gif') !important;
     background-color: #000 !important;
     background-position: center center !important;
@@ -243,21 +302,21 @@ body.maxed-out #pedalboard {
 }
 
 @keyframes shake {
-    0% { transform: scale(0.9) translate(1px, 1px) rotate(0deg); }
+    0%  { transform: scale(0.9) translate(1px, 1px) rotate(0deg); }
     10% { transform: scale(0.9) translate(-1px, -2px) rotate(-1deg); }
     20% { transform: scale(0.9) translate(-3px, 0px) rotate(1deg); }
     30% { transform: scale(0.9) translate(3px, 2px) rotate(0deg); }
     40% { transform: scale(0.9) translate(1px, -1px) rotate(1deg); }
     50% { transform: scale(0.9) translate(-1px, 2px) rotate(-1deg); }
 }
+
 .scale-heading {
-    font-size: 1.8rem; /* Bigger font as requested */
+    font-size: 1.8rem;
     color: #f1c40f;
     margin: 20px 0 10px 0;
     text-shadow: 2px 2px 0px #000;
 }
 
-/* Dropdown styling to match the rack */
 .tone-dropdown {
     background-color: #333;
     color: #f1c40f;
@@ -268,7 +327,6 @@ body.maxed-out #pedalboard {
     margin-top: 5px;
 }
 
-/* Ensure these buttons wrap nicely since they are now big */
 .chromatic-wrapper .buttons {
     display: flex;
     flex-wrap: wrap;
