@@ -257,9 +257,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const videoDryGain = audioCtx.createGain();
   videoDryGain.gain.value = 1;
   document.querySelectorAll("video").forEach((v) => {
-    const source = audioCtx.createMediaElementSource(v);
-    source.connect(videoFxGain);
-    source.connect(videoDryGain);
+    try {
+      const source = audioCtx.createMediaElementSource(v);
+      source.connect(videoFxGain);
+      source.connect(videoDryGain);
+    } catch (err) {
+      console.warn(
+        "Skipped video (already connected or unavailable):",
+        v.src,
+        err,
+      );
+    }
   });
   videoFxGain.connect(inputNode);
   videoDryGain.connect(masterGain);
