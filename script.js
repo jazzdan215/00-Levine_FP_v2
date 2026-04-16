@@ -148,6 +148,52 @@ function playNote(freq, maxgain = 0.2) {
 
 // --- 4. UI CONTROLS ---
 document.addEventListener("DOMContentLoaded", () => {
+  // --- RECORDING LOGIC ---
+  const dest = audioCtx.createMediaStreamDestination();
+  const mediaRecorder = new MediaRecorder(dest.stream);
+  const chunks = [];
+
+  // Connect your masterGain to the recorder destination
+  // This ensures everything going to your speakers also goes to the "tape"
+  masterGain.connect(dest);
+
+  const recordBtn = document.getElementById("recordBtn");
+  const recordingStatus = document.getElementById("recording-status");
+  const downloadLink = document.getElementById("downloadLink");
+
+  recordBtn.addEventListener("click", () => {
+    if (mediaRecorder.state === "inactive") {
+      chunks.length = 0;
+      mediaRecorder.start();
+
+      // UI Updates
+      recordBtn.textContent = "Stop Recording";
+      recordBtn.classList.add("active");
+      recordingStatus.style.display = "flex"; // Show the light/image
+      downloadLink.style.display = "none";
+    } else {
+      mediaRecorder.stop();
+
+      // UI Updates
+      recordBtn.textContent = "Record Session";
+      recordBtn.classList.remove("active");
+      recordingStatus.style.display = "none"; // Hide the light/image
+    }
+  });
+
+  // When the recorder has data, push it to our array
+  mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+
+  // When recording stops, create a file and show the download link
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
+    const url = URL.createObjectURL(blob);
+    downloadLink.href = url;
+    downloadLink.download = "my-chord-session.ogg";
+    downloadLink.textContent = "Download My Jam";
+    downloadLink.style.display = "block";
+  };
+
   // Visualizer Setup
   const analyzer = audioCtx.createAnalyser();
   masterGain.connect(analyzer);

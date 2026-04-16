@@ -190,6 +190,14 @@ input[type=range] {
     accent-color: #f1c40f;
 }
 
+#recording-status span {
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
+    animation: blinker 1.5s linear infinite;
+}
+
+@keyframes blinker {
+    50% { opacity: 0.3; }
+}
 /* --- MAIN PAGE BUTTONS --- */
 .buttons {
     display: flex;
@@ -225,15 +233,33 @@ input[type=range] {
 }
 
 body.maxed-out h1,
+body.maxed-out h2,
+body.maxed-out h3,
 body.maxed-out #main-content {
     opacity: 0.1;
 }
-
+body.maxed-out #scale-heading {
+    opacity: 0.1;
+}
+body.maxed-out h1,
+body.maxed-out #main-content,
+body.maxed-out .chromatic-wrapper {
+    opacity: 0.05 !important;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
 @keyframes shake {
     0%  { transform: scale(0.9) translate(1px, 1px); }
     10% { transform: scale(0.9) translate(-1px, -2px); }
 }
-
+html body.maxed-out {
+    background-image: url('spinaltap.gif') !important;
+    background-color: #000 !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    background-attachment: fixed !important;
+}
 .tone-dropdown {
     background-color: #333;
     color: #f1c40f;
@@ -244,15 +270,6 @@ body.maxed-out #main-content {
 .chromatic-wrapper .buttons {
     max-width: 600px;
     margin: 20px auto;
-}
-
-html body.maxed-out {
-    background-image: url('spinaltap.gif') !important;
-    background-color: #000 !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
-    background-size: cover !important;
-    background-attachment: fixed !important;
 }
 
 .chromatic-wrapper .buttons {
