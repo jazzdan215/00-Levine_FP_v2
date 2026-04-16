@@ -50,76 +50,73 @@ h1 {
 }
 
 h2 {
-    font-family: 'Liquify', serif;
+    font-family: 'Liquid Galaxy', serif;
     font-size: 3.5rem;
     color: #dbca10;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+    letter-spacing: 3px;
+    text-shadow: 4px 4px 0px #8b0000;
+    margin-bottom: 20px;
+    min-height: 4.5rem; /* Keeps titles consistent */
 }
 
-/* --- UPDATED 3-COLUMN GRID LAYOUT --- */
+/* --- THE GRID & ALIGNMENT LOGIC --- */
 #main-content {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
-    align-items: start; /* Changed from end to start for cleaner alignment */
-    margin-bottom: 40px;
-}
-
-/* Ensure the G card only takes up the space it needs */
-.player-g-wide {
-    grid-column: span 2; /* Takes up 2/3 of the row */
-}
-
-/* This container holds the G videos side-by-side */
-.g-videos {
-    display: flex;
-    gap: 15px;
-    justify-content: flex-start; 
-    width: 100%;
+    align-items: stretch; /* Cards will always be the same height */
 }
 
 .player {
-    /* Styles for the D card (and others) to match G's height */
     background: rgba(0, 0, 0, 0.2);
-    padding: 10px;
-    border-radius: 10px;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
 }
 
-/* --- G SECTION: spans all 3 columns, videos side by side --- */
+/* G section takes 2 columns */
 .player-g-wide {
     grid-column: span 2;
 }
 
+/* THE VIDEO SHELF: Forces the horizontal line */
+.video-area-wrapper {
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Locks videos to the bottom of the shelf */
+    margin-bottom: 25px;
+}
+
 .g-videos {
     display: flex;
-    gap: 24px;
+    gap: 15px;
     justify-content: center;
-    width: 100%;
-    margin-bottom: 12px;
+    align-items: flex-end;
 }
 
 .g-video-block {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    flex: 1;
-    max-width: 420px;
-}
-
-.g-video-block video {
-    width: 100%;
-    height: auto;
 }
 
 .g-part-label {
     font-family: 'Liquid Galaxy', sans-serif;
-    font-size: 1.1rem;
+    font-size: 0.8rem;
     color: #f1c40f;
-    margin: 0 0 6px 0;
-    letter-spacing: 1px;
+    margin-bottom: 5px;
 }
 
-
+video {
+    width: 100%;
+    height: 250px !important; /* Fixed height forces alignment */
+    object-fit: cover; /* Prevents squashing/stretching */
+    background: #000;
+    border: 2px solid #000;
+    display: block;
+}
 
 /* --- THE FLOATING RACK (PEDALBOARD) --- */
 #pedalboard {
@@ -140,11 +137,8 @@ h2 {
     width: 220px;
     max-height: 90vh;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #8b0000 #1a1a1a;
 }
 
-/* --- THE OSCILLOSCOPE --- */
 #oscillator-view {
     width: 100%;
     height: 80px;
@@ -155,14 +149,12 @@ h2 {
     display: block;
 }
 
-/* --- RACK ELEMENTS --- */
 .pedal-case h3 {
     font-family: 'Liquify', sans-serif;
     color: #f1c40f;
     font-size: 1.4rem;
     margin: 15px 0 5px 0;
     text-transform: uppercase;
-    letter-spacing: 2px;
 }
 
 .rack-group {
@@ -177,68 +169,52 @@ h2 {
     font-family: 'Liquid Galaxy', sans-serif;
     font-size: 0.9rem;
     color: #edf3f3;
-    text-align: left;
-    letter-spacing: 1px;
 }
 
-/* --- BUTTONS & SLIDERS --- */
 .pedal-case button {
     cursor: pointer;
     padding: 8px;
     background-color: #8b0000;
     color: #f1c40f;
     font-family: 'Liquify', sans-serif;
-    font-size: 1rem;
-    border: 2px solid #000;
     border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.pedal-case button:hover {
-    background-color: #a00000;
-    transform: translateY(-2px);
 }
 
 .pedal-case button.active {
     background-color: #f1c40f;
     color: #000;
-    border-color: #fff;
-    box-shadow: 0 0 10px #f1c40f;
 }
 
 input[type=range] {
     width: 100%;
     accent-color: #f1c40f;
-    cursor: crosshair;
-    margin: 5px 0;
 }
 
-/* --- MAIN PAGE BUTTONS (The Notes) --- */
+/* --- MAIN PAGE BUTTONS --- */
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
 .buttons button {
     cursor: pointer;
-    padding: 10px 20px;
-    margin: 5px;
+    padding: 10px 15px;
     background-color: #8b0000;
     color: #f1c40f;
     font-family: 'Liquid Galaxy', sans-serif;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     border: 2px solid #000;
     border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-    box-shadow: 3px 3px 0px #000;
     transition: all 0.2s ease;
 }
 
 .buttons button:hover {
     transform: scale(1.05);
-    filter: drop-shadow(2px 0px 0px #ff0000) drop-shadow(-2px 0px 0px #0000ff);
 }
 
-/* Scrollbar styling for Chrome/Safari */
-.pedal-case::-webkit-scrollbar { width: 6px; }
-.pedal-case::-webkit-scrollbar-track { background: #1a1a1a; }
-.pedal-case::-webkit-scrollbar-thumb { background: #8b0000; border-radius: 10px; }
-
-/* --- Spinal Tap '11' Button --- */
+/* --- Spinal Tap '11' --- */
 .spinal-tap-btn {
     font-family: 'SquealerEmbossed', serif !important;
     font-size: 4rem !important;
@@ -246,46 +222,28 @@ input[type=range] {
     color: #000;
     border: 4px solid #fff;
     border-radius: 50% / 10%;
-    box-shadow: 0 0 20px #ff0000;
-    margin-bottom: 5px;
-    line-height: 1;
-    transition: all 0.1s ease;
-}
-
-.spinal-tap-btn:hover {
-    transform: scale(1.1) rotate(2deg);
-    box-shadow: 0 0 30px #ff0000, 0 0 10px #fff;
-    filter: brightness(1.2);
-}
-
-.spinal-tap-btn.active {
-    background-color: #000 !important;
-    color: #ff0000 !important;
-    border-color: #ff0000 !important;
-    box-shadow: 0 0 40px #ff0000, inset 0 0 10px #ff0000;
-    transform: scale(1.05) rotate(-2deg);
-}
-
-/* --- The Spinal Tap Body Class --- */
-body.maxed-out {
-    background: url('spinaltap.jpg') no-repeat center center fixed !important;
-    background-size: cover !important;
 }
 
 body.maxed-out h1,
 body.maxed-out #main-content {
     opacity: 0.1;
-    transition: opacity 1s ease;
 }
 
-.spinal-tap-btn:hover::after {
-    content: '';
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background-color: rgba(255, 0, 0, 0.05);
-    pointer-events: none;
-    z-index: -1;
+@keyframes shake {
+    0%  { transform: scale(0.9) translate(1px, 1px); }
+    10% { transform: scale(0.9) translate(-1px, -2px); }
+}
+
+.tone-dropdown {
+    background-color: #333;
+    color: #f1c40f;
+    border: 2px solid #8b0000;
+    padding: 5px;
+}
+
+.chromatic-wrapper .buttons {
+    max-width: 600px;
+    margin: 20px auto;
 }
 
 html body.maxed-out {
@@ -297,40 +255,24 @@ html body.maxed-out {
     background-attachment: fixed !important;
 }
 
-body.maxed-out #pedalboard {
-    animation: shake 0.5s infinite;
-}
-
-@keyframes shake {
-    0%  { transform: scale(0.9) translate(1px, 1px) rotate(0deg); }
-    10% { transform: scale(0.9) translate(-1px, -2px) rotate(-1deg); }
-    20% { transform: scale(0.9) translate(-3px, 0px) rotate(1deg); }
-    30% { transform: scale(0.9) translate(3px, 2px) rotate(0deg); }
-    40% { transform: scale(0.9) translate(1px, -1px) rotate(1deg); }
-    50% { transform: scale(0.9) translate(-1px, 2px) rotate(-1deg); }
-}
-
-.scale-heading {
-    font-size: 1.8rem;
-    color: #f1c40f;
-    margin: 20px 0 10px 0;
-    text-shadow: 2px 2px 0px #000;
-}
-
-.tone-dropdown {
-    background-color: #333;
-    color: #f1c40f;
-    border: 2px solid #8b0000;
-    padding: 5px;
-    font-family: 'Liquid Galaxy', sans-serif;
-    width: 100%;
-    margin-top: 5px;
-}
-
 .chromatic-wrapper .buttons {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    max-width: 600px;
-    margin: 0 auto;
+    flex-wrap: nowrap;       /* Prevents buttons from jumping to the next line */
+    justify-content: center; /* Centers the line of buttons */
+    max-width: 100%;         /* Allows the container to use the full width */
+    margin: 20px auto;
+    overflow-x: auto;        /* Adds a scrollbar if the screen is too narrow */
+    padding: 10px;
+    gap: 5px;                /* Tightens the space between buttons to help them fit */
+}
+
+.chromatic-wrapper .buttons button {
+    flex: 0 1 auto;          /* Allows buttons to shrink slightly if needed */
+    white-space: nowrap;     /* Prevents the text inside buttons from wrapping */
+    min-width: fit-content;
+}
+.chromatic-wrapper {
+    width: 100%;
+    margin-top: 50px;
+    clear: both; /* Ensures it stays below the grid */
 }

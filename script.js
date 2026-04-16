@@ -5,7 +5,7 @@ masterGain.connect(audioCtx.destination);
 // --- 1. THE NODES ---
 const inputNode = audioCtx.createGain();
 
-// Wah (Front of Chain)
+// Wah
 const wahFilter = audioCtx.createBiquadFilter();
 wahFilter.type = "allpass";
 wahFilter.Q.value = 5;
@@ -53,37 +53,28 @@ reverbWet.gain.value = 0;
 const reverbDry = audioCtx.createGain();
 reverbDry.gain.value = 1;
 
-// --- 2. SERIAL WIRING (Sequential Flow with "Bridges") ---
-
-// Input -> Wah
+// --- 2. SERIAL WIRING ---
 inputNode.connect(wahFilter);
-
-// Wah -> Saturation
 wahFilter.connect(satNode);
 satNode.connect(satWet);
 wahFilter.connect(satDry);
 
-// --- BRIDGE 1: Saturation Out ---
 const satOut = audioCtx.createGain();
 satWet.connect(satOut);
 satDry.connect(satOut);
 
-// Saturation Out -> Fuzz
 const fuzzInput = audioCtx.createGain();
 satOut.connect(fuzzInput);
 fuzzInput.connect(fuzzNode);
 fuzzNode.connect(fuzzWet);
 fuzzInput.connect(fuzzDry);
 
-// --- BRIDGE 2: Fuzz Out ---
 const fuzzOut = audioCtx.createGain();
 fuzzWet.connect(fuzzOut);
 fuzzDry.connect(fuzzOut);
 
-// Fuzz Out -> Tremolo
 fuzzOut.connect(tremoloGain);
 
-// Tremolo -> Delay
 const delayInput = audioCtx.createGain();
 tremoloGain.connect(delayInput);
 delayInput.connect(delayNode);
@@ -92,22 +83,18 @@ delayFeedback.connect(delayNode);
 delayNode.connect(delayWet);
 delayInput.connect(delayDry);
 
-// --- BRIDGE 3: Delay Out ---
 const delayOut = audioCtx.createGain();
 delayWet.connect(delayOut);
 delayDry.connect(delayOut);
 
-// Delay Out -> Radio
 delayOut.connect(radioFilter);
 
-// Radio -> Reverb
 const reverbInput = audioCtx.createGain();
 radioFilter.connect(reverbInput);
 reverbInput.connect(reverbNode);
 reverbNode.connect(reverbWet);
 reverbInput.connect(reverbDry);
 
-// Final Output
 reverbWet.connect(masterGain);
 reverbDry.connect(masterGain);
 
@@ -137,18 +124,15 @@ function makeDistortionCurve(amount) {
   return curve;
 }
 
-// THE FIXED PLAYNOTE
 function playNote(freq, maxgain = 0.2) {
   if (audioCtx.state === "suspended") audioCtx.resume();
-
-  // Get the live value from the dropdown
   const toneDropdown = document.getElementById("toneSelect");
   const selectedTone = toneDropdown ? toneDropdown.value : "sine";
 
   const osc = audioCtx.createOscillator();
   const noteGain = audioCtx.createGain();
 
-  osc.type = selectedTone; // Now it actually listens to the UI
+  osc.type = selectedTone;
   osc.frequency.value = freq;
 
   noteGain.gain.setValueAtTime(0, audioCtx.currentTime);
@@ -164,8 +148,14 @@ function playNote(freq, maxgain = 0.2) {
 
 // --- 4. UI CONTROLS ---
 document.addEventListener("DOMContentLoaded", () => {
-  let wahActive = false;
+  // Visualizer Setup
+  const analyzer = audioCtx.createAnalyser();
+  masterGain.connect(analyzer);
+  const canvas = document.getElementById("oscillator-view");
+  const canvasCtx = canvas.getContext("2d");
 
+  // Wah
+  let wahActive = false;
   document.getElementById("wahBtn").addEventListener("click", (e) => {
     wahActive = e.target.classList.toggle("active");
     e.target.textContent = wahActive ? "Wah-Wah: ON" : "Wah-Wah: OFF";
@@ -174,9 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("mousemove", (e) => {
     if (wahActive) {
-      const height = window.innerHeight;
-      const y = e.clientY;
-      const frequency = 400 + (y / height) * 2600;
+      const frequency = 400 + (e.clientY / window.innerHeight) * 2600;
       wahFilter.frequency.setTargetAtTime(
         frequency,
         audioCtx.currentTime,
@@ -185,48 +173,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 1. Define your mapping (Key: Frequency)
+  // Keyboard Mapping
   const keyboardMap = {
-    a: 261.63, // C
-    w: 277.18, // C#
-    s: 293.66, // D
-    e: 311.13, // D#
-    d: 329.63, // E
-    f: 349.23, // F
-    t: 369.99, // F#
-    g: 392.0, // G
-    y: 415.3, // G#
-    h: 440.0, // A
-    u: 466.16, // A#
-    j: 493.88, // B
+    a: 261.63,
+    w: 277.18,
+    s: 293.66,
+    e: 311.13,
+    d: 329.63,
+    f: 349.23,
+    t: 369.99,
+    g: 392.0,
+    y: 415.3,
+    h: 440.0,
+    u: 466.16,
+    j: 493.88,
+    k: 523.25,
   };
-
-  // 2. Add the Event Listener
   window.addEventListener("keydown", (e) => {
-    // Check if the key pressed is in our map
     const freq = keyboardMap[e.key.toLowerCase()];
-
     if (freq) {
-      // Prevent default behavior (like scrolling) if it's a mapped key
       e.preventDefault();
-
-      // Use your existing playNote function!
       playNote(freq);
-
-      // OPTIONAL: Visual feedback (makes the button look clicked)
-      const btn = document.querySelector(`.note-btn[data-freq="${freq}"]`);
-      if (btn) {
-        btn.style.transform = "scale(0.95)";
-        btn.style.filter = "brightness(1.5)";
-        setTimeout(() => {
-          btn.style.transform = "";
-          btn.style.filter = "";
-        }, 100);
-      }
     }
   });
 
-  // Note Listeners
+  // Button Listeners
   document
     .querySelectorAll(".note-btn")
     .forEach((btn) =>
@@ -261,18 +232,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const source = audioCtx.createMediaElementSource(v);
       source.connect(videoFxGain);
       source.connect(videoDryGain);
-    } catch (err) {
-      console.warn(
-        "Skipped video (already connected or unavailable):",
-        v.src,
-        err,
-      );
-    }
+    } catch (err) {}
   });
   videoFxGain.connect(inputNode);
   videoDryGain.connect(masterGain);
 
-  // Toggles
+  // FX Toggles
   document.getElementById("videoFxBtn").addEventListener("click", (e) => {
     const active = e.target.classList.toggle("active");
     videoFxGain.gain.value = active ? 1 : 0;
@@ -284,14 +249,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const active = e.target.classList.toggle("active");
     satWet.gain.value = active ? 1 : 0;
     satDry.gain.value = active ? 0 : 1;
-    e.target.textContent = active ? "Saturation: ON" : "Saturation: OFF";
   });
 
   document.getElementById("fuzzBtn").addEventListener("click", (e) => {
     const active = e.target.classList.toggle("active");
     fuzzWet.gain.value = active ? 1 : 0;
     fuzzDry.gain.value = active ? 0 : 1;
-    e.target.textContent = active ? "Fuzz: ON" : "Fuzz: OFF";
   });
 
   document.getElementById("tremoloBtn").addEventListener("click", (e) => {
@@ -299,23 +262,18 @@ document.addEventListener("DOMContentLoaded", () => {
     lfoDepth.gain.value = active
       ? parseFloat(document.getElementById("tremoloDepth").value)
       : 0;
-    e.target.textContent = active ? "Tremolo: ON" : "Tremolo: OFF";
   });
 
   document.getElementById("delayBtn").addEventListener("click", (e) => {
     const active = e.target.classList.toggle("active");
-    // console.log("Delay Toggle: ", active);
     const mix = parseFloat(document.getElementById("delayMix").value);
-    console.log("Delay Mix Value: ", mix);
     delayWet.gain.value = active ? mix : 0;
     delayDry.gain.value = active ? 1 - mix : 1;
-    e.target.textContent = active ? "Delay: ON" : "Delay: OFF";
   });
 
   document.getElementById("filterBtn").addEventListener("click", (e) => {
     const active = e.target.classList.toggle("active");
     radioFilter.type = active ? "bandpass" : "allpass";
-    e.target.textContent = active ? "AM Radioizer: ON" : "AM Radioizer: OFF";
   });
 
   document.getElementById("reverbBtn").addEventListener("click", (e) => {
@@ -323,97 +281,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const mix = parseFloat(document.getElementById("revMix").value);
     reverbWet.gain.value = active ? mix : 0;
     reverbDry.gain.value = active ? 1 - mix : 1;
-    e.target.textContent = active ? "Reverb: ON" : "Reverb: OFF";
   });
 
-  // --- SPINAL TAP "11" TOGGLE ---
+  // --- SPINAL TAP "11" ---
   const elevenBtn = document.getElementById("elevenBtn");
-
-  // Variables declared here so they are "remembered" between clicks
   let humOsc = null;
   let humGain = null;
 
-  function startElevenHum() {
-    if (!humOsc) {
-      humOsc = audioCtx.createOscillator();
-      humGain = audioCtx.createGain();
-
-      humOsc.type = "sine";
-      // 55Hz is a low 'A'—more audible than 45Hz on most speakers
-      humOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
-      humGain.gain.setValueAtTime(0, audioCtx.currentTime);
-
-      // --- WIRING ---
-      humOsc.connect(humGain);
-
-      // Connect to analyzer FIRST so it shows up on the visualizer
-      humGain.connect(analyzer);
-
-      // Then connect to the master output
-      humGain.connect(masterGain);
-
-      humOsc.start();
-      // Smooth fade in
-      humGain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.2);
-
-      console.log("Nigel's Hum: ONLINE");
-    }
-  }
-
-  function stopElevenHum() {
-    if (humOsc && humGain) {
-      const now = audioCtx.currentTime;
-      const decay = 0.5;
-
-      humGain.gain.cancelScheduledValues(now);
-      humGain.gain.setValueAtTime(humGain.gain.value, now);
-      humGain.gain.linearRampToValueAtTime(0, now + decay);
-
-      // Power-down pitch drop effect
-      humOsc.frequency.linearRampToValueAtTime(20, now + decay);
-
-      humOsc.stop(now + decay);
-
-      // Proper cleanup to free up memory
-      const oldOsc = humOsc;
-      const oldGain = humGain;
-      setTimeout(
-        () => {
-          oldOsc.disconnect();
-          oldGain.disconnect();
-        },
-        decay * 1000 + 100,
-      );
-
-      humOsc = null;
-      humGain = null;
-      console.log("Nigel's Hum: OFFLINE");
-    }
-  }
-
   elevenBtn.addEventListener("click", async (e) => {
-    if (audioCtx.state === "suspended") {
-      await audioCtx.resume();
-    }
-
+    if (audioCtx.state === "suspended") await audioCtx.resume();
     const isActive = e.target.classList.toggle("active");
     e.target.textContent = isActive ? "11!" : "11";
     document.body.classList.toggle("maxed-out", isActive);
 
     if (isActive) {
-      startElevenHum();
-      // Programmatically max the fuzz
-      const fuzzRange = document.getElementById("fuzzRange");
-      if (fuzzRange) {
-        fuzzRange.value = 1000;
-        fuzzRange.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-    } else {
-      stopElevenHum();
+      humOsc = audioCtx.createOscillator();
+      humGain = audioCtx.createGain();
+      humOsc.type = "sine";
+      humOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
+      humGain.gain.setValueAtTime(0, audioCtx.currentTime);
+      humOsc.connect(humGain);
+      humGain.connect(analyzer);
+      humGain.connect(masterGain);
+      humOsc.start();
+      humGain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.2);
+    } else if (humOsc) {
+      humGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+      humOsc.stop(audioCtx.currentTime + 0.5);
+      humOsc = null;
     }
   });
 
-  // Sliders
+  // Slider Listeners
   document
     .getElementById("satDrive")
     .addEventListener(
@@ -429,10 +328,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("tremoloSpeed")
     .addEventListener("input", (e) => (lfo.frequency.value = e.target.value));
-  document.getElementById("tremoloDepth").addEventListener("input", (e) => {
-    if (document.getElementById("tremoloBtn").classList.contains("active"))
-      lfoDepth.gain.value = e.target.value;
-  });
   document
     .getElementById("delayTime")
     .addEventListener(
@@ -454,12 +349,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("masterVol")
     .addEventListener("input", (e) => (masterGain.gain.value = e.target.value));
-
-  // Visualizer
-  const analyzer = audioCtx.createAnalyser();
-  masterGain.connect(analyzer);
-  const canvas = document.getElementById("oscillator-view");
-  const canvasCtx = canvas.getContext("2d");
 
   function draw() {
     requestAnimationFrame(draw);
