@@ -82,7 +82,7 @@
                     </div>
                 </div>
             </div>
-            <div class="buttons">
+                 <div class="buttons">
                 <button class="note-btn" data-freq="392.00">G</button>
                 <button class="note-btn" data-freq="493.88">B</button>
                 <button class="note-btn" data-freq="587.33">D</button>
@@ -90,6 +90,8 @@
                 <button class="arp-btn" data-notes="[392.00, 493.88, 587.33, 783.99, 987.76, 1174.66]">Arpeggio</button>
             </div>
         </div>
+        
+</div>
     </div> <div class="chromatic-wrapper">
         <h3 class="scale-heading">Chromatic Scale</h3>
         <div class="buttons">
@@ -106,9 +108,9 @@
             <button class="note-btn" data-freq="466.16">A#</button>
             <button class="note-btn" data-freq="493.88">B</button>
             <button class="note-btn" data-freq="523.25">C</button>
-
-        </div>
-    </div>
+            <button id="mathBtn" style="background: #00f2ff; color: #000; border-radius: 5px; margin-left: 15px;">Math</button>
+                </div>
+            </div>
 
     <div id="pedalboard">
         <div class="pedal-case">
@@ -202,7 +204,12 @@
         
         </div>
     </div>
-
+<div id="math-takeover" class="math-overlay" style="display: none;">
+    <button id="close-math" class="exit-btn">EXIT MATH MODE</button>
+    <div class="math-video-wrapper">
+        <h2 style="color: #ff00ff; font-family: 'Liquify';">CALCULATING CHAOS...</h2>
+        <video id="mathVideo" src="mathrock.mov" preload="auto" muted loop></video>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

@@ -2,29 +2,22 @@
 @font-face {
     font-family: 'Liquid Galaxy';
     src: url('Liquidgalaxy-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+    font-weight: normal; font-style: normal;
 }
-
 @font-face {
     font-family: 'Liquify';
     src: url('Liquify-DEMO.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
+    font-weight: normal; font-style: normal;
 }
-
 @font-face {
     font-family: 'Squealer';
     src: url('Squealer.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
+    font-weight: normal; font-style: normal;
 }
-
 @font-face {
     font-family: 'SquealerEmbossed';
     src: url('Squealer-Embossed.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
+    font-weight: normal; font-style: normal;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700&display=swap');
@@ -38,7 +31,7 @@ body {
     font-family: 'Liquid Galaxy', sans-serif;
     margin: 0;
     padding: 20px;
-    padding-right: 280px;
+    padding-right: 280px; /* Space for the pedalboard */
     transition: all 0.5s ease;
 }
 
@@ -56,15 +49,15 @@ h2 {
     letter-spacing: 3px;
     text-shadow: 4px 4px 0px #8b0000;
     margin-bottom: 20px;
-    min-height: 4.5rem; /* Keeps titles consistent */
+    min-height: 4.5rem;
 }
 
-/* --- THE GRID & ALIGNMENT LOGIC --- */
+/* --- THE GRID --- */
 #main-content {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
-    align-items: stretch; /* Cards will always be the same height */
+    align-items: stretch;
 }
 
 .player {
@@ -75,17 +68,13 @@ h2 {
     flex-direction: column;
 }
 
-/* G section takes 2 columns */
-.player-g-wide {
-    grid-column: span 2;
-}
+.player-g-wide { grid-column: span 2; }
 
-/* THE VIDEO SHELF: Forces the horizontal line */
 .video-area-wrapper {
     flex-grow: 1; 
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Locks videos to the bottom of the shelf */
+    justify-content: flex-end;
     margin-bottom: 25px;
 }
 
@@ -96,26 +85,59 @@ h2 {
     align-items: flex-end;
 }
 
-.g-video-block {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.g-part-label {
-    font-family: 'Liquid Galaxy', sans-serif;
-    font-size: 0.8rem;
-    color: #f1c40f;
-    margin-bottom: 5px;
-}
-
+/* --- VIDEO TAGS --- */
 video {
     width: 100%;
-    height: 250px !important; /* Fixed height forces alignment */
-    object-fit: cover; /* Prevents squashing/stretching */
+    height: 250px !important; /* Fixed height for the grid */
+    object-fit: cover;
     background: #000;
     border: 2px solid #000;
+}
+
+/* --- MATH ROCK TAKEOVER (NUCLEAR FIX) --- */
+.math-overlay {
+    display: none; 
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: #000000 !important; /* Solid black covers the purple void */
+    z-index: 100000 !important; /* Below Pedalboard (200k) but above everything else */
+    visibility: visible !important; 
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; /* Pushes video to the left */
+    padding-left: 5%;
+}
+
+.math-video-wrapper {
+    width: 65%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 100001;
+}
+
+#mathVideo {
+    width: 100% !important;
+    height: auto !important; /* OVERRIDES the 250px grid squash */
+    border: 5px solid #00f2ff;
+    box-shadow: 0 0 40px #00f2ff;
     display: block;
+}
+
+.exit-btn {
+    background: #ff00ff;
+    color: #000;
+    font-family: 'Liquify', sans-serif;
+    padding: 12px 24px;
+    margin-bottom: 20px;
+    border: 3px solid #fff;
+    cursor: pointer;
+    font-size: 1.2rem;
+    z-index: 100002;
 }
 
 /* --- THE FLOATING RACK (PEDALBOARD) --- */
@@ -123,7 +145,7 @@ video {
     position: fixed;
     right: 20px;
     top: 20px;
-    z-index: 1000;
+    z-index: 200000 !important; /* Supreme layer: visible during takeover */
     transform: scale(0.9);
     transform-origin: top right;
 }
@@ -146,29 +168,6 @@ video {
     border: 2px solid #8b0000;
     border-radius: 8px;
     margin-bottom: 10px;
-    display: block;
-}
-
-.pedal-case h3 {
-    font-family: 'Liquify', sans-serif;
-    color: #f1c40f;
-    font-size: 1.4rem;
-    margin: 15px 0 5px 0;
-    text-transform: uppercase;
-}
-
-.rack-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 12px 0;
-    border-bottom: 1px solid #333;
-}
-
-.rack-group label {
-    font-family: 'Liquid Galaxy', sans-serif;
-    font-size: 0.9rem;
-    color: #edf3f3;
 }
 
 .pedal-case button {
@@ -178,6 +177,8 @@ video {
     color: #f1c40f;
     font-family: 'Liquify', sans-serif;
     border-radius: 8px;
+    width: 100%;
+    margin-top: 5px;
 }
 
 .pedal-case button.active {
@@ -185,25 +186,20 @@ video {
     color: #000;
 }
 
-input[type=range] {
+/* --- CHROMATIC SCALE BUTTONS --- */
+.chromatic-wrapper {
     width: 100%;
-    accent-color: #f1c40f;
+    margin-top: 50px;
+    clear: both;
 }
 
-#recording-status span {
-    text-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
-    animation: blinker 1.5s linear infinite;
-}
-
-@keyframes blinker {
-    50% { opacity: 0.3; }
-}
-/* --- MAIN PAGE BUTTONS --- */
-.buttons {
+.chromatic-wrapper .buttons {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
-    gap: 8px;
+    overflow-x: auto;
+    padding: 10px;
+    gap: 5px;
 }
 
 .buttons button {
@@ -212,84 +208,43 @@ input[type=range] {
     background-color: #8b0000;
     color: #f1c40f;
     font-family: 'Liquid Galaxy', sans-serif;
-    font-size: 1.1rem;
     border: 2px solid #000;
     border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-    transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-.buttons button:hover {
-    transform: scale(1.05);
-}
-
-/* --- Spinal Tap '11' --- */
+/* --- SPINAL TAP 11 --- */
 .spinal-tap-btn {
     font-family: 'SquealerEmbossed', serif !important;
-    font-size: 4rem !important;
+    font-size: 3rem !important;
     background-color: #ff0000;
     color: #000;
     border: 4px solid #fff;
-    border-radius: 50% / 10%;
 }
 
-body.maxed-out h1,
-body.maxed-out h2,
-body.maxed-out h3,
-body.maxed-out #main-content {
-    opacity: 0.1;
-}
-body.maxed-out #scale-heading {
-    opacity: 0.1;
-}
-body.maxed-out h1,
-body.maxed-out #main-content,
-body.maxed-out .chromatic-wrapper {
+body.maxed-out #main-content, 
+body.maxed-out .chromatic-wrapper,
+body.maxed-out h1 {
     opacity: 0.05 !important;
     pointer-events: none;
-    transition: opacity 0.5s ease;
 }
-@keyframes shake {
-    0%  { transform: scale(0.9) translate(1px, 1px); }
-    10% { transform: scale(0.9) translate(-1px, -2px); }
-}
+
 html body.maxed-out {
     background-image: url('spinaltap.gif') !important;
     background-color: #000 !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
     background-size: cover !important;
-    background-attachment: fixed !important;
-}
-.tone-dropdown {
-    background-color: #333;
-    color: #f1c40f;
-    border: 2px solid #8b0000;
-    padding: 5px;
 }
 
-.chromatic-wrapper .buttons {
-    max-width: 600px;
-    margin: 20px auto;
+/* --- MATH BUTTON STYLING --- */
+#mathBtn {
+    background-color: #000;
+    color: #ff00ff;
+    border: 2px solid #ff00ff;
+    letter-spacing: 2px;
 }
 
-.chromatic-wrapper .buttons {
-    display: flex;
-    flex-wrap: nowrap;       /* Prevents buttons from jumping to the next line */
-    justify-content: center; /* Centers the line of buttons */
-    max-width: 100%;         /* Allows the container to use the full width */
-    margin: 20px auto;
-    overflow-x: auto;        /* Adds a scrollbar if the screen is too narrow */
-    padding: 10px;
-    gap: 5px;                /* Tightens the space between buttons to help them fit */
-}
-
-.chromatic-wrapper .buttons button {
-    flex: 0 1 auto;          /* Allows buttons to shrink slightly if needed */
-    white-space: nowrap;     /* Prevents the text inside buttons from wrapping */
-    min-width: fit-content;
-}
-.chromatic-wrapper {
-    width: 100%;
-    margin-top: 50px;
-    clear: both; /* Ensures it stays below the grid */
+#mathBtn.active {
+    background-color: #ff00ff;
+    color: #000;
+    box-shadow: 0 0 20px #ff00ff;
 }

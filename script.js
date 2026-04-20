@@ -146,45 +146,59 @@ function playNote(freq, maxgain = 0.2) {
   osc.stop(audioCtx.currentTime + 1.2);
 }
 
-// --- 4. UI CONTROLS ---
+// --- 4. UI & LOGIC ---
 document.addEventListener("DOMContentLoaded", () => {
+  // Video FX Gains
+  const videoFxGain = audioCtx.createGain();
+  videoFxGain.gain.value = 0;
+  const videoDryGain = audioCtx.createGain();
+  videoDryGain.gain.value = 1;
+
+  // Global Video Connection helper
+  function connectVideo(v) {
+    try {
+      const source = audioCtx.createMediaElementSource(v);
+      source.connect(videoFxGain);
+      source.connect(videoDryGain);
+    } catch (e) {
+      /* Already connected */
+    }
+  }
+
+  document.querySelectorAll("video").forEach((v) => connectVideo(v));
+
+  videoFxGain.connect(inputNode);
+  videoDryGain.connect(masterGain);
+
   // --- RECORDING LOGIC ---
   const dest = audioCtx.createMediaStreamDestination();
   const mediaRecorder = new MediaRecorder(dest.stream);
   const chunks = [];
-
-  // Connect your masterGain to the recorder destination
-  // This ensures everything going to your speakers also goes to the "tape"
   masterGain.connect(dest);
 
   const recordBtn = document.getElementById("recordBtn");
   const recordingStatus = document.getElementById("recording-status");
   const downloadLink = document.getElementById("downloadLink");
 
-  recordBtn.addEventListener("click", () => {
-    if (mediaRecorder.state === "inactive") {
-      chunks.length = 0;
-      mediaRecorder.start();
+  if (recordBtn) {
+    recordBtn.addEventListener("click", () => {
+      if (mediaRecorder.state === "inactive") {
+        chunks.length = 0;
+        mediaRecorder.start();
+        recordBtn.textContent = "Stop Recording";
+        recordBtn.classList.add("active");
+        if (recordingStatus) recordingStatus.style.display = "flex";
+        if (downloadLink) downloadLink.style.display = "none";
+      } else {
+        mediaRecorder.stop();
+        recordBtn.textContent = "Record Session";
+        recordBtn.classList.remove("active");
+        if (recordingStatus) recordingStatus.style.display = "none";
+      }
+    });
+  }
 
-      // UI Updates
-      recordBtn.textContent = "Stop Recording";
-      recordBtn.classList.add("active");
-      recordingStatus.style.display = "flex"; // Show the light/image
-      downloadLink.style.display = "none";
-    } else {
-      mediaRecorder.stop();
-
-      // UI Updates
-      recordBtn.textContent = "Record Session";
-      recordBtn.classList.remove("active");
-      recordingStatus.style.display = "none"; // Hide the light/image
-    }
-  });
-
-  // When the recorder has data, push it to our array
   mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-
-  // When recording stops, create a file and show the download link
   mediaRecorder.onstop = () => {
     const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
     const url = URL.createObjectURL(blob);
@@ -194,19 +208,69 @@ document.addEventListener("DOMContentLoaded", () => {
     downloadLink.style.display = "block";
   };
 
-  // Visualizer Setup
+  // --- MATH ROCK TAKEOVER LOGIC ---
+  const mathBtn = document.getElementById("mathBtn");
+  const mathOverlay = document.getElementById("math-takeover");
+  const mathVideo = document.getElementById("mathVideo");
+  const closeMath = document.getElementById("close-math");
+  const pedalboard = document.getElementById("pedalboard");
+  const mainContent = document.getElementById("main-content");
+  const chromaticScale = document.querySelector(".chromatic-wrapper");
+
+  if (mathBtn && mathOverlay && mathVideo) {
+    mathBtn.onclick = () => {
+      if (audioCtx.state === "suspended") audioCtx.resume();
+
+      // 1. Show overlay (Force visibility in case of CSS inheritance)
+      mathOverlay.style.display = "flex";
+      mathOverlay.style.visibility = "visible";
+
+      // 2. Hide background elements
+      if (mainContent) mainContent.style.visibility = "hidden";
+      if (chromaticScale) chromaticScale.style.visibility = "hidden";
+
+      // 3. Ensure pedalboard is Supreme
+      if (pedalboard) {
+        pedalboard.style.zIndex = "200000";
+        pedalboard.style.display = "block";
+      }
+
+      // 4. Play video
+      mathVideo.muted = false;
+      mathVideo.play().catch((e) => console.log("Playback error:", e));
+    };
+    closeMath.onclick = (e) => {
+      e.preventDefault();
+
+      // 1. Stop video and kill audio leak
+      mathVideo.pause();
+      mathVideo.muted = true;
+      mathVideo.currentTime = 0;
+
+      // 2. Restore UI
+      mathOverlay.style.display = "none";
+      if (mainContent) mainContent.style.visibility = "visible";
+      if (chromaticScale) chromaticScale.style.visibility = "visible";
+      document.body.style.overflow = "auto";
+    };
+  }
+
+  // Visualizer
   const analyzer = audioCtx.createAnalyser();
   masterGain.connect(analyzer);
   const canvas = document.getElementById("oscillator-view");
-  const canvasCtx = canvas.getContext("2d");
+  const canvasCtx = canvas ? canvas.getContext("2d") : null;
 
   // Wah
   let wahActive = false;
-  document.getElementById("wahBtn").addEventListener("click", (e) => {
-    wahActive = e.target.classList.toggle("active");
-    e.target.textContent = wahActive ? "Wah-Wah: ON" : "Wah-Wah: OFF";
-    wahFilter.type = wahActive ? "bandpass" : "allpass";
-  });
+  const wahBtn = document.getElementById("wahBtn");
+  if (wahBtn) {
+    wahBtn.addEventListener("click", (e) => {
+      wahActive = e.target.classList.toggle("active");
+      e.target.textContent = wahActive ? "Wah-Wah: ON" : "Wah-Wah: OFF";
+      wahFilter.type = wahActive ? "bandpass" : "allpass";
+    });
+  }
 
   window.addEventListener("mousemove", (e) => {
     if (wahActive) {
@@ -219,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Keyboard Mapping
+  // Keyboard
   const keyboardMap = {
     a: 261.63,
     w: 277.18,
@@ -243,7 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Button Listeners
+  // Notes/Chords/Arps
   document
     .querySelectorAll(".note-btn")
     .forEach((btn) =>
@@ -268,136 +332,119 @@ document.addEventListener("DOMContentLoaded", () => {
       ),
     );
 
-  // Video Routing
-  const videoFxGain = audioCtx.createGain();
-  videoFxGain.gain.value = 0;
-  const videoDryGain = audioCtx.createGain();
-  videoDryGain.gain.value = 1;
-  document.querySelectorAll("video").forEach((v) => {
-    try {
-      const source = audioCtx.createMediaElementSource(v);
-      source.connect(videoFxGain);
-      source.connect(videoDryGain);
-    } catch (err) {}
-  });
-  videoFxGain.connect(inputNode);
-  videoDryGain.connect(masterGain);
+  // FX Listeners
+  const setupToggle = (id, wet, dry, labelOn, labelOff) => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener("click", (e) => {
+        const active = e.target.classList.toggle("active");
+        if (wet) wet.gain.value = active ? 1 : 0;
+        if (dry) dry.gain.value = active ? 0 : 1;
+        if (labelOn) e.target.textContent = active ? labelOn : labelOff;
+      });
+    }
+  };
 
-  // FX Toggles
-  document.getElementById("videoFxBtn").addEventListener("click", (e) => {
-    const active = e.target.classList.toggle("active");
-    videoFxGain.gain.value = active ? 1 : 0;
-    videoDryGain.gain.value = active ? 0 : 1;
-    e.target.textContent = active ? "Video FX: ON" : "Video FX: OFF";
-  });
+  setupToggle(
+    "videoFxBtn",
+    videoFxGain,
+    videoDryGain,
+    "Video FX: ON",
+    "Video FX: OFF",
+  );
+  setupToggle("satBtn", satWet, satDry);
+  setupToggle("fuzzBtn", fuzzWet, fuzzDry);
 
-  document.getElementById("satBtn").addEventListener("click", (e) => {
-    const active = e.target.classList.toggle("active");
-    satWet.gain.value = active ? 1 : 0;
-    satDry.gain.value = active ? 0 : 1;
-  });
+  const tremBtn = document.getElementById("tremoloBtn");
+  if (tremBtn) {
+    tremBtn.addEventListener("click", (e) => {
+      const active = e.target.classList.toggle("active");
+      lfoDepth.gain.value = active
+        ? parseFloat(document.getElementById("tremoloDepth").value)
+        : 0;
+    });
+  }
 
-  document.getElementById("fuzzBtn").addEventListener("click", (e) => {
-    const active = e.target.classList.toggle("active");
-    fuzzWet.gain.value = active ? 1 : 0;
-    fuzzDry.gain.value = active ? 0 : 1;
-  });
+  const delBtn = document.getElementById("delayBtn");
+  if (delBtn) {
+    delBtn.addEventListener("click", (e) => {
+      const active = e.target.classList.toggle("active");
+      const mix = parseFloat(document.getElementById("delayMix").value);
+      delayWet.gain.value = active ? mix : 0;
+      delayDry.gain.value = active ? 1 - mix : 1;
+    });
+  }
 
-  document.getElementById("tremoloBtn").addEventListener("click", (e) => {
-    const active = e.target.classList.toggle("active");
-    lfoDepth.gain.value = active
-      ? parseFloat(document.getElementById("tremoloDepth").value)
-      : 0;
-  });
+  const filtBtn = document.getElementById("filterBtn");
+  if (filtBtn) {
+    filtBtn.addEventListener("click", (e) => {
+      const active = e.target.classList.toggle("active");
+      radioFilter.type = active ? "bandpass" : "allpass";
+    });
+  }
 
-  document.getElementById("delayBtn").addEventListener("click", (e) => {
-    const active = e.target.classList.toggle("active");
-    const mix = parseFloat(document.getElementById("delayMix").value);
-    delayWet.gain.value = active ? mix : 0;
-    delayDry.gain.value = active ? 1 - mix : 1;
-  });
+  const revBtn = document.getElementById("reverbBtn");
+  if (revBtn) {
+    revBtn.addEventListener("click", (e) => {
+      const active = e.target.classList.toggle("active");
+      const mix = parseFloat(document.getElementById("revMix").value);
+      reverbWet.gain.value = active ? mix : 0;
+      reverbDry.gain.value = active ? 1 - mix : 1;
+    });
+  }
 
-  document.getElementById("filterBtn").addEventListener("click", (e) => {
-    const active = e.target.classList.toggle("active");
-    radioFilter.type = active ? "bandpass" : "allpass";
-  });
-
-  document.getElementById("reverbBtn").addEventListener("click", (e) => {
-    const active = e.target.classList.toggle("active");
-    const mix = parseFloat(document.getElementById("revMix").value);
-    reverbWet.gain.value = active ? mix : 0;
-    reverbDry.gain.value = active ? 1 - mix : 1;
-  });
-
-  // --- SPINAL TAP "11" ---
+  // Spinal Tap 11
   const elevenBtn = document.getElementById("elevenBtn");
   let humOsc = null;
   let humGain = null;
+  if (elevenBtn) {
+    elevenBtn.addEventListener("click", async (e) => {
+      if (audioCtx.state === "suspended") await audioCtx.resume();
+      const isActive = e.target.classList.toggle("active");
+      e.target.textContent = isActive ? "11!" : "11";
+      document.body.classList.toggle("maxed-out", isActive);
+      if (isActive) {
+        humOsc = audioCtx.createOscillator();
+        humGain = audioCtx.createGain();
+        humOsc.type = "sine";
+        humOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
+        humGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        humOsc.connect(humGain);
+        humGain.connect(analyzer);
+        humGain.connect(masterGain);
+        humOsc.start();
+        humGain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.2);
+      } else if (humOsc) {
+        humGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+        humOsc.stop(audioCtx.currentTime + 0.5);
+        humOsc = null;
+      }
+    });
+  }
 
-  elevenBtn.addEventListener("click", async (e) => {
-    if (audioCtx.state === "suspended") await audioCtx.resume();
-    const isActive = e.target.classList.toggle("active");
-    e.target.textContent = isActive ? "11!" : "11";
-    document.body.classList.toggle("maxed-out", isActive);
+  // Sliders
+  const bindSlider = (id, callback) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", (e) => callback(e.target.value));
+  };
 
-    if (isActive) {
-      humOsc = audioCtx.createOscillator();
-      humGain = audioCtx.createGain();
-      humOsc.type = "sine";
-      humOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
-      humGain.gain.setValueAtTime(0, audioCtx.currentTime);
-      humOsc.connect(humGain);
-      humGain.connect(analyzer);
-      humGain.connect(masterGain);
-      humOsc.start();
-      humGain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.2);
-    } else if (humOsc) {
-      humGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-      humOsc.stop(audioCtx.currentTime + 0.5);
-      humOsc = null;
-    }
-  });
-
-  // Slider Listeners
-  document
-    .getElementById("satDrive")
-    .addEventListener(
-      "input",
-      (e) => (satNode.curve = makeDistortionCurve(parseInt(e.target.value))),
-    );
-  document
-    .getElementById("fuzzRange")
-    .addEventListener(
-      "input",
-      (e) => (fuzzNode.curve = makeDistortionCurve(parseInt(e.target.value))),
-    );
-  document
-    .getElementById("tremoloSpeed")
-    .addEventListener("input", (e) => (lfo.frequency.value = e.target.value));
-  document
-    .getElementById("delayTime")
-    .addEventListener(
-      "input",
-      (e) => (delayNode.delayTime.value = e.target.value),
-    );
-  document
-    .getElementById("delayFeedback")
-    .addEventListener(
-      "input",
-      (e) => (delayFeedback.gain.value = e.target.value),
-    );
-  document
-    .getElementById("freq")
-    .addEventListener(
-      "input",
-      (e) => (radioFilter.frequency.value = e.target.value),
-    );
-  document
-    .getElementById("masterVol")
-    .addEventListener("input", (e) => (masterGain.gain.value = e.target.value));
+  bindSlider(
+    "satDrive",
+    (v) => (satNode.curve = makeDistortionCurve(parseInt(v))),
+  );
+  bindSlider(
+    "fuzzRange",
+    (v) => (fuzzNode.curve = makeDistortionCurve(parseInt(v))),
+  );
+  bindSlider("tremoloSpeed", (v) => (lfo.frequency.value = v));
+  bindSlider("delayTime", (v) => (delayNode.delayTime.value = v));
+  bindSlider("delayFeedback", (v) => (delayFeedback.gain.value = v));
+  bindSlider("freq", (v) => (radioFilter.frequency.value = v));
+  bindSlider("masterVol", (v) => (masterGain.gain.value = v));
 
   function draw() {
     requestAnimationFrame(draw);
+    if (!canvasCtx) return;
     const bufferLength = analyzer.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     analyzer.getByteTimeDomainData(dataArray);
