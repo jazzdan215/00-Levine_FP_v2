@@ -248,3 +248,35 @@ html body.maxed-out {
     color: #000;
     box-shadow: 0 0 20px #ff00ff;
 }
+
+.tone-dropdown {
+    background-color: #000; /* Deep black background */
+    color: #f1c40f;          /* Gold text to match your headers */
+    border: 2px solid #8b0000; /* Blood red border */
+    padding: 8px;
+    font-family: 'Liquid Galaxy', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+/* Glow effect when hovering or selecting */
+.tone-dropdown:hover, 
+.tone-dropdown:focus {
+    border-color: #ff0000;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+    color: #fff; /* Text turns white on hover for a "lit" look */
+
+}
+
+/* Styling the actual options inside the menu */
+.tone-dropdown option {
+    background-color: #1a1a1a;
+    color: #f1c40f;
+    padding: 10px;
+    font-family: 'Liquid Galaxy', sans-serif;}
