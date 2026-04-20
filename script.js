@@ -124,6 +124,9 @@ function makeDistortionCurve(amount) {
   return curve;
 }
 
+// octaveMultiplier lives at module scope so playNote and all listeners share it
+let octaveMultiplier = 1;
+
 function playNote(freq, maxgain = 0.2) {
   if (audioCtx.state === "suspended") audioCtx.resume();
   const toneDropdown = document.getElementById("toneSelect");
@@ -148,27 +151,58 @@ function playNote(freq, maxgain = 0.2) {
 
 // --- 4. UI & LOGIC ---
 document.addEventListener("DOMContentLoaded", () => {
-  // Video FX Gains
+  // 1. Setup Video FX Routing
   const videoFxGain = audioCtx.createGain();
   videoFxGain.gain.value = 0;
   const videoDryGain = audioCtx.createGain();
   videoDryGain.gain.value = 1;
 
-  // Global Video Connection helper
-  function connectVideo(v) {
+  // Video audio: through FX chain or straight to master
+  videoFxGain.connect(inputNode);
+  videoDryGain.connect(masterGain);
+
+  // FIX: use one consistently named helper — connectVideoAudio
+  function connectVideoAudio(v) {
     try {
       const source = audioCtx.createMediaElementSource(v);
       source.connect(videoFxGain);
       source.connect(videoDryGain);
     } catch (e) {
-      /* Already connected */
+      console.log("Video already connected:", v.src);
     }
   }
 
-  document.querySelectorAll("video").forEach((v) => connectVideo(v));
+  // Connect ALL videos on the page (chord players + math video)
+  document.querySelectorAll("video").forEach((v) => connectVideoAudio(v));
 
-  videoFxGain.connect(inputNode);
-  videoDryGain.connect(masterGain);
+  // 2. MATH ROCK TAKEOVER
+  const mathBtn = document.getElementById("mathBtn");
+  const mathOverlay = document.getElementById("math-takeover");
+  const mathVideo = document.getElementById("mathVideo");
+  const closeMath = document.getElementById("close-math");
+  const mainContent = document.getElementById("main-content");
+  const chromaticScale = document.querySelector(".chromatic-wrapper");
+
+  if (mathBtn && mathOverlay && mathVideo) {
+    mathBtn.onclick = () => {
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      mathOverlay.style.display = "flex";
+      if (mainContent) mainContent.style.display = "none";
+      if (chromaticScale) chromaticScale.style.display = "none";
+      mathVideo.muted = false;
+      mathVideo.play().catch((e) => console.log("Play blocked:", e));
+    };
+
+    closeMath.onclick = (e) => {
+      e.preventDefault();
+      mathVideo.pause();
+      mathVideo.muted = true;
+      mathVideo.currentTime = 0;
+      mathOverlay.style.display = "none";
+      if (mainContent) mainContent.style.display = "grid";
+      if (chromaticScale) chromaticScale.style.display = "block";
+    };
+  }
 
   // --- RECORDING LOGIC ---
   const dest = audioCtx.createMediaStreamDestination();
@@ -208,60 +242,55 @@ document.addEventListener("DOMContentLoaded", () => {
     downloadLink.style.display = "block";
   };
 
-  // --- MATH ROCK TAKEOVER LOGIC ---
-  const mathBtn = document.getElementById("mathBtn");
-  const mathOverlay = document.getElementById("math-takeover");
-  const mathVideo = document.getElementById("mathVideo");
-  const closeMath = document.getElementById("close-math");
-  const pedalboard = document.getElementById("pedalboard");
-  const mainContent = document.getElementById("main-content");
-  const chromaticScale = document.querySelector(".chromatic-wrapper");
+  // --- CHAOS BUTTON LOGIC ---
+  const chaosBtn = document.getElementById("chaosBtn");
+  let isCtrlPressed = false;
 
-  if (mathBtn && mathOverlay && mathVideo) {
-    mathBtn.onclick = () => {
-      if (audioCtx.state === "suspended") audioCtx.resume();
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Control") isCtrlPressed = true;
+  });
+  window.addEventListener("keyup", (e) => {
+    if (e.key === "Control") isCtrlPressed = false;
+  });
 
-      // 1. Show overlay (Force visibility in case of CSS inheritance)
-      mathOverlay.style.display = "flex";
-      mathOverlay.style.visibility = "visible";
-
-      // 2. Hide background elements
-      if (mainContent) mainContent.style.visibility = "hidden";
-      if (chromaticScale) chromaticScale.style.visibility = "hidden";
-
-      // 3. Ensure pedalboard is Supreme
-      if (pedalboard) {
-        pedalboard.style.zIndex = "200000";
-        pedalboard.style.display = "block";
+  if (chaosBtn) {
+    chaosBtn.addEventListener("mouseover", () => {
+      if (!isCtrlPressed) {
+        const x = Math.random() * 100 - 50;
+        const y = Math.random() * 100 - 50;
+        chaosBtn.style.transform = `translate(${x}px, ${y}px)`;
+      } else {
+        chaosBtn.style.transform = `translate(0, 0)`;
       }
+    });
 
-      // 4. Play video
-      mathVideo.muted = false;
-      mathVideo.play().catch((e) => console.log("Playback error:", e));
-    };
-    closeMath.onclick = (e) => {
-      e.preventDefault();
+    chaosBtn.addEventListener("click", (e) => {
+      const isActive = e.target.classList.toggle("active");
+      e.target.textContent = isActive ? "CHAOS ACTIVE" : "ACTIVATE CHAOS";
 
-      // 1. Stop video and kill audio leak
-      mathVideo.pause();
-      mathVideo.muted = true;
-      mathVideo.currentTime = 0;
+      const allVideos = document.querySelectorAll("video");
+      const videoFxBtn = document.getElementById("videoFxBtn");
 
-      // 2. Restore UI
-      mathOverlay.style.display = "none";
-      if (mainContent) mainContent.style.visibility = "visible";
-      if (chromaticScale) chromaticScale.style.visibility = "visible";
-      document.body.style.overflow = "auto";
-    };
+      if (isActive) {
+        allVideos.forEach((v) => {
+          v.currentTime = 0;
+          v.play().catch((err) => console.log("Blocked", err));
+        });
+        if (videoFxBtn && !videoFxBtn.classList.contains("active"))
+          videoFxBtn.click();
+      } else {
+        allVideos.forEach((v) => v.pause());
+      }
+    });
   }
 
-  // Visualizer
+  // --- VISUALIZER ---
   const analyzer = audioCtx.createAnalyser();
   masterGain.connect(analyzer);
   const canvas = document.getElementById("oscillator-view");
   const canvasCtx = canvas ? canvas.getContext("2d") : null;
 
-  // Wah
+  // --- WAH ---
   let wahActive = false;
   const wahBtn = document.getElementById("wahBtn");
   if (wahBtn) {
@@ -283,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Keyboard
+  // --- KEYBOARD MAP ---
   const keyboardMap = {
     a: 261.63,
     w: 277.18,
@@ -299,48 +328,32 @@ document.addEventListener("DOMContentLoaded", () => {
     j: 493.88,
     k: 523.25,
   };
-  window.addEventListener("keydown", (e) => {
-    const freq = keyboardMap[e.key.toLowerCase()];
-    if (freq) {
-      e.preventDefault();
-      playNote(freq);
-      playNote(freq * octaveMultiplier);
-    }
-  });
 
-  // 1. Initialize the multiplier (Top of script)
-  let octaveMultiplier = 1;
-
-  // 2. The Octave Button Logic
+  // --- OCTAVE BUTTON ---
   const octaveBtn = document.getElementById("octaveShiftBtn");
   if (octaveBtn) {
     octaveBtn.addEventListener("click", (e) => {
       const isActive = e.target.classList.toggle("active");
-      octaveMultiplier = isActive ? 2 : 1; // 2 doubles frequency = +1 octave
+      octaveMultiplier = isActive ? 2 : 1;
       e.target.textContent = isActive ? "OCTAVE: +1" : "OCTAVE: OFF";
     });
   }
+
+  // --- SINGLE KEYBOARD LISTENER (handles octave shift key + note keys) ---
   window.addEventListener("keydown", (e) => {
-    // 1. Handle Octave Shift (The '8' Key)
     if (e.key === "8") {
       e.preventDefault();
-      const octaveBtn = document.getElementById("octaveShiftBtn");
-      if (octaveBtn) {
-        // This manually triggers the click logic you already wrote
-        octaveBtn.click();
-      }
-      return; // Exit so it doesn't try to play a note
+      if (octaveBtn) octaveBtn.click();
+      return;
     }
-
-    // 2. Handle Note Playing
     const freq = keyboardMap[e.key.toLowerCase()];
     if (freq) {
       e.preventDefault();
-      // Use the multiplier here so the keyboard respects the shift!
       playNote(freq * octaveMultiplier);
     }
   });
-  // 3. Update the Note Button Clicker to use the multiplier
+
+  // --- NOTE / CHORD / ARP BUTTONS (single set of listeners, with octave) ---
   document.querySelectorAll(".note-btn").forEach((btn) =>
     btn.addEventListener("click", () => {
       const baseFreq = parseFloat(btn.dataset.freq);
@@ -348,7 +361,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }),
   );
 
-  // 4. Update Chord and Arpeggio listeners similarly
   document
     .querySelectorAll(".chord-btn")
     .forEach((btn) =>
@@ -369,32 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ),
     );
 
-  // Notes/Chords/Arps
-  document
-    .querySelectorAll(".note-btn")
-    .forEach((btn) =>
-      btn.addEventListener("click", () =>
-        playNote(parseFloat(btn.dataset.freq)),
-      ),
-    );
-  document
-    .querySelectorAll(".chord-btn")
-    .forEach((btn) =>
-      btn.addEventListener("click", () =>
-        JSON.parse(btn.dataset.notes).forEach((f) => playNote(f, 0.1)),
-      ),
-    );
-  document
-    .querySelectorAll(".arp-btn")
-    .forEach((btn) =>
-      btn.addEventListener("click", () =>
-        JSON.parse(btn.dataset.notes).forEach((f, i) =>
-          setTimeout(() => playNote(f, 0.15), i * 250),
-        ),
-      ),
-    );
-
-  // FX Listeners
+  // --- FX TOGGLES ---
   const setupToggle = (id, wet, dry, labelOn, labelOff) => {
     const btn = document.getElementById(id);
     if (btn) {
@@ -414,13 +401,14 @@ document.addEventListener("DOMContentLoaded", () => {
     "Video FX: ON",
     "Video FX: OFF",
   );
-  setupToggle("satBtn", satWet, satDry);
-  setupToggle("fuzzBtn", fuzzWet, fuzzDry);
+  setupToggle("satBtn", satWet, satDry, "Saturation: ON", "Saturation: OFF");
+  setupToggle("fuzzBtn", fuzzWet, fuzzDry, "Fuzz: ON", "Fuzz: OFF");
 
   const tremBtn = document.getElementById("tremoloBtn");
   if (tremBtn) {
     tremBtn.addEventListener("click", (e) => {
       const active = e.target.classList.toggle("active");
+      e.target.textContent = active ? "Tremolo: ON" : "Tremolo: OFF";
       lfoDepth.gain.value = active
         ? parseFloat(document.getElementById("tremoloDepth").value)
         : 0;
@@ -431,6 +419,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (delBtn) {
     delBtn.addEventListener("click", (e) => {
       const active = e.target.classList.toggle("active");
+      e.target.textContent = active ? "Delay: ON" : "Delay: OFF";
       const mix = parseFloat(document.getElementById("delayMix").value);
       delayWet.gain.value = active ? mix : 0;
       delayDry.gain.value = active ? 1 - mix : 1;
@@ -441,6 +430,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (filtBtn) {
     filtBtn.addEventListener("click", (e) => {
       const active = e.target.classList.toggle("active");
+      e.target.textContent = active ? "AM Radioizer: ON" : "AM Radioizer: OFF";
       radioFilter.type = active ? "bandpass" : "allpass";
     });
   }
@@ -449,13 +439,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (revBtn) {
     revBtn.addEventListener("click", (e) => {
       const active = e.target.classList.toggle("active");
+      e.target.textContent = active ? "Reverb: ON" : "Reverb: OFF";
       const mix = parseFloat(document.getElementById("revMix").value);
       reverbWet.gain.value = active ? mix : 0;
       reverbDry.gain.value = active ? 1 - mix : 1;
     });
   }
 
-  // Spinal Tap 11
+  // --- SPINAL TAP 11 ---
   const elevenBtn = document.getElementById("elevenBtn");
   let humOsc = null;
   let humGain = null;
@@ -484,7 +475,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Sliders
+  // --- SLIDERS ---
   const bindSlider = (id, callback) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener("input", (e) => callback(e.target.value));
@@ -499,11 +490,29 @@ document.addEventListener("DOMContentLoaded", () => {
     (v) => (fuzzNode.curve = makeDistortionCurve(parseInt(v))),
   );
   bindSlider("tremoloSpeed", (v) => (lfo.frequency.value = v));
+  bindSlider("tremoloDepth", (v) => {
+    if (document.getElementById("tremoloBtn").classList.contains("active")) {
+      lfoDepth.gain.value = parseFloat(v);
+    }
+  });
   bindSlider("delayTime", (v) => (delayNode.delayTime.value = v));
   bindSlider("delayFeedback", (v) => (delayFeedback.gain.value = v));
+  bindSlider("delayMix", (v) => {
+    if (document.getElementById("delayBtn").classList.contains("active")) {
+      delayWet.gain.value = parseFloat(v);
+      delayDry.gain.value = 1 - parseFloat(v);
+    }
+  });
+  bindSlider("revMix", (v) => {
+    if (document.getElementById("reverbBtn").classList.contains("active")) {
+      reverbWet.gain.value = parseFloat(v);
+      reverbDry.gain.value = 1 - parseFloat(v);
+    }
+  });
   bindSlider("freq", (v) => (radioFilter.frequency.value = v));
   bindSlider("masterVol", (v) => (masterGain.gain.value = v));
 
+  // --- DRAW LOOP ---
   function draw() {
     requestAnimationFrame(draw);
     if (!canvasCtx) return;
@@ -515,11 +524,11 @@ document.addEventListener("DOMContentLoaded", () => {
     canvasCtx.lineWidth = 2;
     canvasCtx.strokeStyle = "#00f2ff";
     canvasCtx.beginPath();
-    let sliceWidth = canvas.width / bufferLength;
+    const sliceWidth = canvas.width / bufferLength;
     let x = 0;
     for (let i = 0; i < bufferLength; i++) {
-      let v = dataArray[i] / 128.0;
-      let y = (v * canvas.height) / 2;
+      const v = dataArray[i] / 128.0;
+      const y = (v * canvas.height) / 2;
       if (i === 0) canvasCtx.moveTo(x, y);
       else canvasCtx.lineTo(x, y);
       x += sliceWidth;

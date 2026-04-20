@@ -82,7 +82,7 @@
                     </div>
                 </div>
             </div>
-                 <div class="buttons">
+            <div class="buttons">
                 <button class="note-btn" data-freq="392.00">G</button>
                 <button class="note-btn" data-freq="493.88">B</button>
                 <button class="note-btn" data-freq="587.33">D</button>
@@ -90,9 +90,9 @@
                 <button class="arp-btn" data-notes="[392.00, 493.88, 587.33, 783.99, 987.76, 1174.66]">Arpeggio</button>
             </div>
         </div>
-        
-</div>
-    </div> <div class="chromatic-wrapper">
+    </div>
+
+    <div class="chromatic-wrapper">
         <h2 class="scale-heading">Chromatic Scale</h2>
         <div class="buttons">
             <button id="octaveShiftBtn" class="octave-toggle" style="background: #18aa01; color: #1f0893; border-radius: 5px; margin-left: 15px;">OCTAVE: OFF</button>
@@ -110,7 +110,10 @@
             <button class="note-btn" data-freq="493.88">B</button>
             <button class="note-btn" data-freq="523.25">C</button>
             <button id="mathBtn" style="background: #18aa01; color: #1f0893; border-radius: 5px; margin-left: 15px;">LET'S LEARN MATH</button>
+            <button id="chaosBtn" class="chaos-flee">ACTIVATE CHAOS</button>
+        </div>
     </div>
+
     <div id="pedalboard">
         <div class="pedal-case">
             <h3>Signal View</h3>
@@ -190,25 +193,27 @@
                     <button id="elevenBtn" class="spinal-tap-btn">11</button>
                     <p style="font-size: 0.8rem; color: #8b0000; margin: 0; font-family: 'SquealerEmbossed', sans-serif;"></p>
                 </div>
+
+                <div class="rack-group">
+                    <div id="recording-status" style="display: none; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                        <img id="rec-light" src="live-recording.gif" width="20" height="20">
+                        <span style="color: #ff0000; font-family: 'Liquid Galaxy', sans-serif; font-size: 0.8rem; letter-spacing: 1px;">RECORDING...</span>
+                    </div>
+                    <button id="recordBtn">Record Session</button>
+                    <a id="downloadLink" style="display: none; color: #00f2ff; margin-top: 10px;">Download Recording</a>
+                </div>
             </div>
-        <div class="rack-group">
-    <div id="recording-status" style="display: none; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
-    <img id="rec-light" src="live-recording.gif" width="20" height="20">
-    <span style="color: #ff0000; font-family: 'Liquid Galaxy', sans-serif; font-size: 0.8rem; letter-spacing: 1px;">RECORDING...</span>
-</div>
-            <button id="recordBtn">Record Session</button>
-    <a id="downloadLink" style="display: none; color: #00f2ff; margin-top: 10px;">Download Recording</a>
-</div>
-        
-        
         </div>
     </div>
-<div id="math-takeover" class="math-overlay" style="display: none;">
-    <button id="close-math" class="exit-btn">EXIT MATH MODE</button>
-    <div class="math-video-wrapper">
-        <h2 style="color: #ff00ff; font-family: 'Liquify';">CALCULATING CHAOS...</h2>
-        <video id="mathVideo" src="mathrock.mov" preload="auto" muted loop></video>
+
+    <div id="math-takeover" class="math-overlay">
+        <button id="close-math" class="exit-btn">EXIT MATH MODE</button>
+        <div class="math-video-wrapper">
+            <h2 style="color: #ff00ff; font-family: 'Liquify';">CALCULATING CHAOS...</h2>
+            <video id="mathVideo" src="mathrock.mov" preload="auto" muted loop></video>
+        </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
