@@ -213,6 +213,22 @@ video {
     white-space: nowrap;
 }
 
+/* Specific styling for the Octave Shift button */
+.octave-toggle {
+    background-color: #333 !important; /* Darker than the notes */
+    color: #00f2ff !important;        /* Cyan text */
+    border: 2px solid #00f2ff !important;
+    border-radius: 5px !important;    /* Rectangular shape */
+    font-weight: bold;
+    min-width: 100px;
+}
+
+.octave-toggle.active {
+    background-color: #00f2ff !important;
+    color: #000 !important;
+    box-shadow: 0 0 15px #00f2ff;
+}
+
 /* --- SPINAL TAP 11 --- */
 .spinal-tap-btn {
     font-family: 'SquealerEmbossed', serif !important;

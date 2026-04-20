@@ -304,8 +304,70 @@ document.addEventListener("DOMContentLoaded", () => {
     if (freq) {
       e.preventDefault();
       playNote(freq);
+      playNote(freq * octaveMultiplier);
     }
   });
+
+  // 1. Initialize the multiplier (Top of script)
+  let octaveMultiplier = 1;
+
+  // 2. The Octave Button Logic
+  const octaveBtn = document.getElementById("octaveShiftBtn");
+  if (octaveBtn) {
+    octaveBtn.addEventListener("click", (e) => {
+      const isActive = e.target.classList.toggle("active");
+      octaveMultiplier = isActive ? 2 : 1; // 2 doubles frequency = +1 octave
+      e.target.textContent = isActive ? "OCTAVE: +1" : "OCTAVE: OFF";
+    });
+  }
+  window.addEventListener("keydown", (e) => {
+    // 1. Handle Octave Shift (The '8' Key)
+    if (e.key === "8") {
+      e.preventDefault();
+      const octaveBtn = document.getElementById("octaveShiftBtn");
+      if (octaveBtn) {
+        // This manually triggers the click logic you already wrote
+        octaveBtn.click();
+      }
+      return; // Exit so it doesn't try to play a note
+    }
+
+    // 2. Handle Note Playing
+    const freq = keyboardMap[e.key.toLowerCase()];
+    if (freq) {
+      e.preventDefault();
+      // Use the multiplier here so the keyboard respects the shift!
+      playNote(freq * octaveMultiplier);
+    }
+  });
+  // 3. Update the Note Button Clicker to use the multiplier
+  document.querySelectorAll(".note-btn").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      const baseFreq = parseFloat(btn.dataset.freq);
+      playNote(baseFreq * octaveMultiplier);
+    }),
+  );
+
+  // 4. Update Chord and Arpeggio listeners similarly
+  document
+    .querySelectorAll(".chord-btn")
+    .forEach((btn) =>
+      btn.addEventListener("click", () =>
+        JSON.parse(btn.dataset.notes).forEach((f) =>
+          playNote(f * octaveMultiplier, 0.1),
+        ),
+      ),
+    );
+
+  document
+    .querySelectorAll(".arp-btn")
+    .forEach((btn) =>
+      btn.addEventListener("click", () =>
+        JSON.parse(btn.dataset.notes).forEach((f, i) =>
+          setTimeout(() => playNote(f * octaveMultiplier, 0.15), i * 250),
+        ),
+      ),
+    );
 
   // Notes/Chords/Arps
   document
